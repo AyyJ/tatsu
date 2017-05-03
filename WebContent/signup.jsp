@@ -52,8 +52,8 @@
         <label for="name" class="sr-only">Name</label>
         <input type="text" id="name" class="form-control" placeholder="Name" required autofocus>
 		  <select class="form-control" id="roles" required>
-			<option value="own">Owner</option>
-			<option value="cust">Customer</option>
+			<option value="1">Owner</option>
+			<option value="2">Customer</option>
 		</select>
 		<label for="age" class="sr-only">Age</label>
         <input type="text" id="age" class="form-control" placeholder="Age" required>

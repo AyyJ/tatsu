@@ -1,10 +1,18 @@
+CREATE TABLE roles (
+  ID    SERIAL PRIMARY KEY,
+  name  TEXT
+);
+
+INSERT INTO roles (name) VALUES ('Owner');
+INSERT INTO roles (name) VALUES ('Customer');
+
 CREATE TABLE users (
   ID      SERIAL PRIMARY KEY,
-  name    TEXT,
+  name    TEXT NOT NULL UNIQUE,
   role    INTEGER REFERENCES roles (ID) NOT NULL,
-  age     INTEGER,
-  state   TEXT
-)
+  age     INTEGER NOT NULL,
+  state   TEXT NOT NULL
+);
 
 CREATE TABLE products (
   ID        SERIAL PRIMARY KEY,
@@ -12,22 +20,11 @@ CREATE TABLE products (
   sku       INTEGER,
   category  INTEGER REFERENCES categories (ID) NOT NULL,
   price     INTEGER
-)
-
-CREATE TABLE roles (
-  ID    SERIAL PRIMARY KEY,
-  name  TEXT
-)
-
-CREATE TABLE categories (
-  ID            SERIAL PRIMARY KEY,
-  name          TEXT,
-  description   TEXT
-)
+);
 
 CREATE TABLE purchases (
   ID        SERIAL,
-  user      INTEGER REFERENCES users (ID) NOT NULL,
+  uid      INTEGER REFERENCES users (ID) NOT NULL,
   product   INTEGER REFERENCES products (ID) NOT NULL
 
-)
+);
