@@ -96,17 +96,20 @@
                 // Wrap the SQL exception in a runtime exception to propagate
                 // it upwards
 
-                if(e.getErrorCode() == 23505) {
+                if(e.getSQLState().equals("23505") || e.getSQLState().equals("23502") || e.getSQLState().equals("23514")) {
                 	%>
-                	hi
+                	failed
                 	<%
-                } else {
+                } else // make block for null fields 
+                {
 
-                 e.getErrorCode(); 
-                 e.getMessage();
-                 e.getSQLState();
-                                //throw new RuntimeException(e);
+      		
+        			System.out.println(e.getSQLState());
+        			System.out.println(e.getSQLState().equals("23505"));
+        			System.out.println("else");
+                    throw new RuntimeException(e);
                 }
+                
             }
             finally {
                 // Release resources in a finally block in reverse-order of

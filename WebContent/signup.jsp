@@ -50,14 +50,14 @@
         <h2 class="form-signin-heading">Sign Up for myShop</h2>
         <input type="hidden" name="action" value="insert">
         <label for="name" class="sr-only">Name</label>
-        <input type="text" name="name" id="name" class="form-control" placeholder="Name" required autofocus>
-		  <select class="form-control" id="role" name="role" required>
+        <input type="text" name="name" id="name" class="form-control" placeholder="Name"  autofocus>
+		  <select class="form-control" id="role" name="role" >
 			<option value="1">Owner</option>
 			<option value="2">Customer</option>
 		</select>
 		<label for="age" class="sr-only">Age</label>
-        <input type="text" name="age" id="age" class="form-control" placeholder="Age" required>
-		  <select class="form-control" id="states" name="state" required>
+        <input type="text" name="age" id="age" class="form-control" placeholder="Age" >
+		  <select class="form-control" id="states" name="state" >
 			<option value="AL">Alabama</option>
 			<option value="AK">Alaska</option>
 			<option value="AZ">Arizona</option>
