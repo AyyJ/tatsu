@@ -46,18 +46,18 @@
 	}
   </style>
 <div class="container">
-
-      <form class="form-signin" action"signupNext.jsp">
+      <form class="form-signin" action="signupNext.jsp">
         <h2 class="form-signin-heading">Sign Up for myShop</h2>
+        <input type="hidden" name="action" value="insert">
         <label for="name" class="sr-only">Name</label>
-        <input type="text" id="name" class="form-control" placeholder="Name" required autofocus>
-		  <select class="form-control" id="roles" required>
+        <input type="text" name="name" id="name" class="form-control" placeholder="Name" required autofocus>
+		  <select class="form-control" id="role" name="role" required>
 			<option value="1">Owner</option>
 			<option value="2">Customer</option>
 		</select>
 		<label for="age" class="sr-only">Age</label>
-        <input type="text" id="age" class="form-control" placeholder="Age" required>
-		  <select class="form-control" id="states" required>
+        <input type="text" name="age" id="age" class="form-control" placeholder="Age" required>
+		  <select class="form-control" id="states" name="state" required>
 			<option value="AL">Alabama</option>
 			<option value="AK">Alaska</option>
 			<option value="AZ">Arizona</option>
@@ -114,6 +114,5 @@
       </form>
 
     </div>
-
 </body>
 </html>

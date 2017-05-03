@@ -53,7 +53,6 @@
         <input type="text" id="name" class="form-control" placeholder="Name" required autofocus>
         <button class="btn btn-lg btn-primary btn-block" style="margin-top: 5px;" type="submit">Sign in</button>
       </form>
-
-    </div>
+        <button class="btn btn-lg btn-primary btn-block" style="width: 300px; margin: auto;" onclick="window.location.href='signup.jsp';">Sign Up</button>
 </body>
 </html>
