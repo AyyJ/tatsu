@@ -12,6 +12,15 @@
 </head>
 
 <body>
+<%
+if(session.getAttribute("name") != null){
+	%>
+	<script type="text/javascript">
+		window.location.replace("home.jsp");
+    </script>
+	<%
+}
+%>
   <style type="text/css">
 	body {
 	  padding-top: 40px;

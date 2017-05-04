@@ -74,6 +74,7 @@
                     pstmt = conn
                     .prepareStatement("INSERT INTO users (name, role, age, state) VALUES (?, ?, ?, ?)");
 
+                    try {
                     pstmt.setString(1, request.getParameter("name"));
                     pstmt.setInt(2, Integer.parseInt(request.getParameter("role")));
                     pstmt.setInt(3, Integer.parseInt(request.getParameter("age")));
@@ -83,14 +84,21 @@
                     // Commit transaction
                     conn.commit();
                     conn.setAutoCommit(true);
+                    session.setAttribute("name", request.getParameter("name"));
+                    session.setAttribute("role", request.getParameter("role"));
+                    %>
+                    <a href="home.jsp">You have successfully logged in. Click here to proceed to the home page</a>
+                    <%
+                    } catch(NumberFormatException e1){
+                    	%>
+                    	<div class="alert alert-danger">
+            	      		<strong>Error:</strong> Your sign up failed- Please try again. <br>
+            	      		<a href="signup.jsp"> Return to sign up page</a>
+            	   	 	</div>
+                    	<%
+                    }
                     
                 }
-            %>
-            success
-            <!--  stuff -->
-            <%
-
-
             } catch (SQLException e) {
 
                 // Wrap the SQL exception in a runtime exception to propagate
@@ -98,16 +106,11 @@
 
                 if(e.getSQLState().equals("23505") || e.getSQLState().equals("23502") || e.getSQLState().equals("23514")) {
                 	%>
-                	failed
+                	<div class="alert alert-danger">
+        	      		<strong>Error:</strong> Your sign up failed- Please try again. <br>
+        	      		<a href="signup.jsp"> Return to sign up page</a>
+        	   	 	</div>
                 	<%
-                } else // make block for null fields 
-                {
-
-      		
-        			System.out.println(e.getSQLState());
-        			System.out.println(e.getSQLState().equals("23505"));
-        			System.out.println("else");
-                    throw new RuntimeException(e);
                 }
                 
             }

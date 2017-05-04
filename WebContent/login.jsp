@@ -12,6 +12,15 @@
 </head>
 
 <body>
+<%
+if(session.getAttribute("name") != null){
+	%>
+	<script type="text/javascript">
+		window.location.replace("home.jsp");
+    </script>
+	<%
+}
+%>
   <style type="text/css">
 	body {
 	  padding-top: 40px;
@@ -46,11 +55,94 @@
   </style>
 
 <div class="container">
+<%@ page import="java.sql.*"%>
+            <%-- -------- Open Connection Code -------- --%>
+            <%
+            
+            Connection conn = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            
+            try {
+                // Registering Postgresql JDBC driver with the DriverManager
+                Class.forName("org.postgresql.Driver");
 
-      <form class="form-signin">
+                // Open a connection to the database using DriverManager
+                conn = DriverManager.getConnection(
+                    "jdbc:postgresql://localhost/Tatsu?" +
+                    "user=postgres&password=postgres1");
+                
+                String action = request.getParameter("action");             
+                
+                // Check if an insertion is requested
+                if (action != null && action.equals("login")) {
+
+                    // Begin transaction
+                    conn.setAutoCommit(false);
+
+                    // Create the prepared statement and use it to
+                    // INSERT student values INTO the students table.
+                    pstmt = conn
+                    .prepareStatement("SELECT * FROM users WHERE name='" +
+                    request.getParameter("name") + "'");
+                    pstmt.execute();
+                    
+                    rs = pstmt.getResultSet();
+                    if(rs.next() == false){
+                    	%>
+                    	<div class="alert alert-danger">
+            	      		<strong>Error:</strong> The provided name <strong><em><% if(request.getParameter("name") != null) { out.print(request.getParameter("name"));} %></em></strong> is not known. <br>
+            	      		Please re-complete the form.
+            	   	 	</div>
+                    	<%
+                    } else {
+                    	session.setAttribute("name", request.getParameter("name"));
+                    	session.setAttribute("role", request.getParameter("role"));
+                    	%>
+                    	<script type="text/javascript">
+                    		window.location.replace("home.jsp");
+                        </script>
+                    	<%
+                    	
+                    }
+                }
+            } catch (SQLException e) {
+                // Wrap the SQL exception in a runtime exception to propagate
+                // it upwards
+                throw new RuntimeException(e);
+            }
+            finally {
+                // Release resources in a finally block in reverse-order of
+                // their creation
+
+                if (pstmt != null) {
+                    try {
+                        pstmt.close();
+                    } catch (SQLException e) { } // Ignore
+                    pstmt = null;
+                }
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) { } // Ignore
+                    conn = null;
+                }
+            }
+            
+            if(session.getAttribute("homeErr") == "nouser"){
+            	  %> 
+            	    <div class="alert alert-danger">
+            	      <strong>Error:</strong> No user logged in.
+            	    </div>
+            	  <%
+            	}
+           %>
+           
+      <form class="form-signin" action="login.jsp">
         <h2 class="form-signin-heading">Please log in</h2>
+        <input type="hidden" name="action" value="login">
         <label for="name" class="sr-only">Name</label>
-        <input type="text" id="name" class="form-control" placeholder="Name" required autofocus>
+        <input type="text" id="name" name="name" class="form-control" placeholder="Name" required autofocus>
         <button class="btn btn-lg btn-primary btn-block" style="margin-top: 5px;" type="submit">Sign in</button>
       </form>
         <button class="btn btn-lg btn-primary btn-block" style="width: 300px; margin: auto;" onclick="window.location.href='signup.jsp';">Sign Up</button>
