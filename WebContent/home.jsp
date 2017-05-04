@@ -46,9 +46,14 @@ if(session.getAttribute("name") == null){
 			<% } else { %>
 				<li><a href="error.html">Categories</a></li>
 			<% } %>
-          <li><a href="#">Products</a></li>
-          <li><a href="#">Order</a></li>
-          <li><a href="#">Shopping Cart</a></li>
+			<% if(session.getAttribute("role") == "1"){ %>
+				<li><a href="manageProducts.jsp">Manage Products</a></li>
+			<% } else { %>
+				<li><a href="error.html">Manage Products</a></li>
+			<% } %>
+		  <li><a href="viewProducts.jsp">View Products</a></li>
+          <li><a href="order.jsp">Order</a></li>
+          <li><a href="shoppingCart.jsp">Shopping Cart</a></li>
         </ul>
       </div>
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
