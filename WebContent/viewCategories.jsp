@@ -31,7 +31,7 @@
 				  <% if(session.getAttribute("role").equals("1")){ %>
 				    <li><a href="#">Categories <span class="sr-only">(current)</span></a></li>
 				  <% } else { %>
-					<li><a href="error.html">Categories</a></li>
+					<li><a href="#">Categories <span class="sr-only">(current)</span></a></li>
 				  <% } %>
 				  <% if(session.getAttribute("role").equals("1")){ %>
 					<li><a href="manageProducts.jsp">Manage Products</a></li>
@@ -47,8 +47,99 @@
               <h1 class="page-header">Welcome to myShop <% if(session.getAttribute("name") != null) { out.print(session.getAttribute("name"));} %></h1>
 
         <div class="row placeholders">
+        
+        
 
         </div>
+        <td>
+            <%-- Import the java.sql package --%>
+            <%@ page import="java.sql.*"%>
+        <%-- -------- Open Connection Code -------- --%>
+            <%
+            
+            Connection conn = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            
+            try {
+                // Registering Postgresql JDBC driver with the DriverManager
+                Class.forName("org.postgresql.Driver");
+
+                // Open a connection to the database using DriverManager
+                conn = DriverManager.getConnection(
+                    "jdbc:postgresql://localhost/Tatsu?" +
+                    "user=postgres&password=postgres1");
+                
+                Statement statement = conn.createStatement();
+                rs = statement.executeQuery("SELECT * FROM categories");
+                %>
+                <!-- Add an HTML table header row to format the results -->
+                <table border="1">
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                <%-- -------- Iteration Code -------- --%>
+            <%
+                // Iterate over the ResultSet
+                while (rs.next()) {
+            %>
+
+            <tr>
+                <%-- Get the name --%>
+                <td>
+                    <%=rs.getString("name")%>
+                </td>
+
+                <%-- Get the description --%>
+                <td>
+                    <%=rs.getString("description")%>
+                </td>
+            </tr>
+            <%
+                }
+            %>
+              <%-- -------- Close Connection Code -------- --%>
+            <%
+                // Close the ResultSet
+                rs.close();
+
+                // Close the Statement
+                statement.close();
+
+                // Close the Connection
+                conn.close();
+            } catch (SQLException e) {
+
+                // Wrap the SQL exception in a runtime exception to propagate
+                // it upwards
+                throw new RuntimeException(e);
+            }
+            finally {
+                // Release resources in a finally block in reverse-order of
+                // their creation
+
+                if (rs != null) {
+                    try {
+                        rs.close();
+                    } catch (SQLException e) { } // Ignore
+                    rs = null;
+                }
+                if (pstmt != null) {
+                    try {
+                        pstmt.close();
+                    } catch (SQLException e) { } // Ignore
+                    pstmt = null;
+                }
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) { } // Ignore
+                    conn = null;
+                }
+            }
+            %>
+        </table>
+        </td>
         <!-- Save for later?
         <h2 class="sub-header">Section title</h2>
         <div class="table-responsive">

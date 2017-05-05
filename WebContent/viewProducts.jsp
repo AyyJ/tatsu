@@ -29,7 +29,7 @@
 		      <ul class="nav nav-sidebar">
 		        <li class="active"><a href="home.jsp">Home</a></li>
 				  <% if(session.getAttribute("role").equals("1")){ %>
-				    <li><a href="#">Categories <span class="sr-only">(current)</span></a></li>
+				    <li><a href="viewCategories.jsp">Categories</a></li>
 				  <% } else { %>
 					<li><a href="error.html">Categories</a></li>
 				  <% } %>
@@ -38,7 +38,7 @@
 				  <% } else { %>
 					<li><a href="error.html">Manage Products</a></li>
 				  <% } %>
-				<li><a href="viewProducts.jsp">View Products</a></li>
+				<li><a href="#">View Products  <span class="sr-only">(current)</span></a></li>
 		        <li><a href="order.jsp">Order</a></li>
 		        <li><a href="shoppingCart.jsp">Shopping Cart</a></li>
 		      </ul>
