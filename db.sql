@@ -14,6 +14,12 @@ CREATE TABLE users (
   state   TEXT NOT NULL
 );
 
+CREATE TABLE categories (
+  ID            SERIAL PRIMARY KEY,
+  name          TEXT,
+  description   TEXT
+);
+
 CREATE TABLE products (
   ID        SERIAL PRIMARY KEY,
   name      TEXT,

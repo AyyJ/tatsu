@@ -23,19 +23,28 @@
         </div>
         </nav>
 
-        <div class="container-fluid">
-        <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-        <ul class="nav nav-sidebar">
-        <li class="active"><a href="#">Home <span class="sr-only">(current)</span></a></li>
-        <li><a href="#">Categories</a></li>
-        <li><a href="#">Products</a></li>
-        <li><a href="#">Order</a></li>
-        <li><a href="#">Shopping Cart</a></li>
-        </ul>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-        <h1 class="page-header">Welcome to myShop %USER%</h1>
+		<div class="container-fluid">
+		  <div class="row">
+		    <div class="col-sm-3 col-md-2 sidebar">
+		      <ul class="nav nav-sidebar">
+		        <li class="active"><a href="home.jsp">Home</a></li>
+				  <% if(session.getAttribute("role").equals("1")){ %>
+				    <li><a href="#">Categories <span class="sr-only">(current)</span></a></li>
+				  <% } else { %>
+					<li><a href="error.html">Categories</a></li>
+				  <% } %>
+				  <% if(session.getAttribute("role").equals("1")){ %>
+					<li><a href="manageProducts.jsp">Manage Products</a></li>
+				  <% } else { %>
+					<li><a href="error.html">Manage Products</a></li>
+				  <% } %>
+				<li><a href="viewProducts.jsp">View Products</a></li>
+		        <li><a href="order.jsp">Order</a></li>
+		        <li><a href="shoppingCart.jsp">Shopping Cart</a></li>
+		      </ul>
+		    </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+              <h1 class="page-header">Welcome to myShop <% if(session.getAttribute("name") != null) { out.print(session.getAttribute("name"));} %></h1>
 
         <div class="row placeholders">
 

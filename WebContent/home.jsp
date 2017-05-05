@@ -41,12 +41,12 @@ if(session.getAttribute("name") == null){
       <div class="col-sm-3 col-md-2 sidebar">
         <ul class="nav nav-sidebar">
           <li class="active"><a href="#">Home <span class="sr-only">(current)</span></a></li>
-			<% if(session.getAttribute("role") == "1"){ %>
+			<% if(session.getAttribute("role").equals("1")){ %>
 				<li><a href="viewCategories.jsp">Categories</a></li>
 			<% } else { %>
 				<li><a href="error.html">Categories</a></li>
 			<% } %>
-			<% if(session.getAttribute("role") == "1"){ %>
+			<% if(session.getAttribute("role").equals("1")){ %>
 				<li><a href="manageProducts.jsp">Manage Products</a></li>
 			<% } else { %>
 				<li><a href="error.html">Manage Products</a></li>
