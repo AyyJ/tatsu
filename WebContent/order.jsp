@@ -9,6 +9,17 @@
         <link rel="stylesheet" href="global.css">
         </head>
         <body>
+        <%
+if(session.getAttribute("name") == null){
+	session.setAttribute("homeErr", "nouser");
+	session.setAttribute("role", "999");
+	%>
+	<script type="text/javascript">
+		window.location.replace("login.jsp");
+    </script>
+	<%
+}
+%>
         <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
         <div class="navbar-header">
@@ -27,7 +38,7 @@
 		  <div class="row">
 		    <div class="col-sm-3 col-md-2 sidebar">
 		      <ul class="nav nav-sidebar">
-		        <li class="active"><a href="home.jsp">Home</a></li>
+		        <li><a href="home.jsp">Home</a></li>
 				  <% if(session.getAttribute("role").equals("1")){ %>
 				    <li><a href="viewCategories.jsp">Categories</a></li>
 				  <% } else { %>
@@ -39,7 +50,7 @@
 					<li><a href="error.html">Manage Products</a></li>
 				  <% } %>
 				<li><a href="viewProducts.jsp">View Products</a></li>
-		        <li><a href="#">Order  <span class="sr-only">(current)</span></a></li>
+		        <li class="active"><a href="#">Order  <span class="sr-only">(current)</span></a></li>
 		        <li><a href="shoppingCart.jsp">Shopping Cart</a></li>
 		      </ul>
 		    </div>

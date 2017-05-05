@@ -12,6 +12,15 @@
 </head>
 
 <body>
+<%
+if(session.getAttribute("name") != null){
+	%>
+	<script type="text/javascript">
+		window.location.replace("home.jsp");
+    </script>
+	<%
+}
+%>
   <style type="text/css">
 	body {
 	  padding-top: 40px;
@@ -104,7 +113,7 @@
                 // Wrap the SQL exception in a runtime exception to propagate
                 // it upwards
 
-                if(e.getSQLState().equals("23505") || e.getSQLState().equals("23502") || e.getSQLState().equals("23514")) {
+        	  if(e.getSQLState().equals("23505") || e.getSQLState().equals("23502") || e.getSQLState().equals("23514") || e.getSQLState().equals("44000")) {
                 	%>
                 	<div class="alert alert-danger">
         	      		<strong>Error:</strong> Your sign up failed- Please try again. <br>

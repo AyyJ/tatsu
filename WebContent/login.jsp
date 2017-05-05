@@ -8,6 +8,7 @@
   <title>myShop :: Log in</title>
   <!-- Bootstrap core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="login.css">
   <!-- Custom styles for this template -->
 </head>
 
@@ -97,7 +98,7 @@ if(session.getAttribute("name") != null){
                     	<%
                     } else {
                     	session.setAttribute("name", request.getParameter("name"));
-                    	session.setAttribute("role", request.getParameter("role"));
+                    	session.setAttribute("role", rs.getString("role"));
                     	%>
                     	<script type="text/javascript">
                     		window.location.replace("home.jsp");
