@@ -69,7 +69,60 @@
                 conn = DriverManager.getConnection(
                     "jdbc:postgresql://localhost/Tatsu?" +
                     "user=postgres&password=postgres1");
+					
                 
+                	//insert code
+                    String action = request.getParameter("action");
+                    // Check if an insertion is requested
+                    if (action != null && action.equals("insert")) {
+
+                        // Begin transaction
+                        conn.setAutoCommit(false);
+
+                        // Create the prepared statement and use it to
+                        pstmt = conn.prepareStatement("INSERT INTO categories (name,description) VALUES (?, ?)");
+
+                        pstmt.setString(1, request.getParameter("cname"));
+                        pstmt.setString(2, request.getParameter("cdesc"));
+                        pstmt.executeUpdate();
+
+                        // Commit transaction
+                        conn.commit();
+                        conn.setAutoCommit(true);
+                    }
+				
+                    if (action != null && action.equals("update")) {
+
+                      // Begin transaction
+                      conn.setAutoCommit(false);
+                      // Create the prepared statement and use it to
+                      // UPDATE category values in the table.
+                      pstmt = conn.prepareStatement("UPDATE categories SET name = ?, description = ? WHERE id = ?");
+
+                      pstmt.setString(1, request.getParameter("cname"));
+                      pstmt.setString(2, request.getParameter("cdesc"));
+                      pstmt.setInt(3, Integer.parseInt(request.getParameter("id")));
+					  pstmt.executeUpdate();
+                      // Commit transaction
+                      conn.commit();
+                      conn.setAutoCommit(true);
+                    }
+                    
+                    // Check if a delete is requested
+                    if (action != null && action.equals("delete")) {
+				      // Begin transaction
+                      conn.setAutoCommit(false);
+
+                      // Create the prepared statement and use it to
+                      // DELETE students FROM the Students table.
+                      pstmt = conn.prepareStatement("DELETE FROM categories WHERE id = ?");
+				      pstmt.setInt(1, Integer.parseInt(request.getParameter("id")));
+			          pstmt.executeUpdate();
+                      // Commit transaction
+                      conn.commit();
+                      conn.setAutoCommit(true);
+                    }
+                //Connection code
                 Statement statement = conn.createStatement();
                 rs = statement.executeQuery("SELECT * FROM categories");
                 %>
@@ -78,28 +131,57 @@
                 <tr>
                     <th>Name</th>
                     <th>Description</th>
+                </tr>
+                <tr>
+                <form action="viewCategories.jsp" method="POST">
+                    <input type="hidden" name="action" value="insert"/>
+                    <th><input value="" name="cname" size="10"/></th>
+                    <th><input value="" name="cdesc" size="15"/></th>
+                    <th><input type="submit" value="Insert"/></th>
+                </form>
+            </tr>
                 <%-- -------- Iteration Code -------- --%>
             <%
                 // Iterate over the ResultSet
                 while (rs.next()) {
             %>
-
+		
             <tr>
+            
+            	<form action="viewCategories.jsp" method="POST">
+                  <input type="hidden" name="action" value="update"/> 
+                  <input type="hidden" value="<%=rs.getInt("id")%>" name="id"/>
+                  
                 <%-- Get the name --%>
                 <td>
-                    <%=rs.getString("name")%>
+                    <input value="<%=rs.getString("name")%>" name="cname" size="15"/>
                 </td>
-
+				
                 <%-- Get the description --%>
                 <td>
-                    <%=rs.getString("description")%>
+                    <input value="<%=rs.getString("description")%>" name="cdesc" size="15"/>
                 </td>
+                <%-- Button --%>
+                <td><input type="submit" value="Update"></td>
+                </form>
+                <form action="viewCategories.jsp" method="POST">
+                    <input type="hidden" name="action" value="delete"/>
+                    <input type="hidden" value="<%=rs.getInt("id")%>" name="id"/>
+                    <%-- Button --%>
+                <td><input type="submit" value="Delete"/></td>
+                </form>
             </tr>
             <%
                 }
+            
+            
             %>
+            </table>
+            </td>
+
               <%-- -------- Close Connection Code -------- --%>
             <%
+            
                 // Close the ResultSet
                 rs.close();
 
@@ -138,8 +220,7 @@
                 }
             }
             %>
-        </table>
-        </td>
+
         <!-- Save for later?
         <h2 class="sub-header">Section title</h2>
         <div class="table-responsive">
