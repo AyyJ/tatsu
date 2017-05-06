@@ -220,7 +220,9 @@ if(session.getAttribute("name") == null){
               conn.close();
           } catch (SQLException e) {
         	  System.out.println("SQL ERROR #: " + e.getSQLState());
-        	  if(e.getSQLState().equals("23505") || e.getSQLState().equals("23502") || e.getSQLState().equals("23514") || e.getSQLState().equals("44000")) {
+        	  if(e.getSQLState().equals("23505") || e.getSQLState().equals("23502") || 
+        			  e.getSQLState().equals("23514") || e.getSQLState().equals("44000") ||
+        			  e.getSQLState().equals("23503")) {
               	%>
               	<div class="alert alert-danger">
       	      		<strong>Error:</strong> Data modification failure. <br>

@@ -463,11 +463,14 @@ if(session.getAttribute("name") == null){
               // Close the Connection
               conn.close();
           } catch (SQLException e) {
-        	  if(e.getSQLState().equals("23505") || e.getSQLState().equals("23502") || e.getSQLState().equals("23514") || e.getSQLState().equals("44000")) {
+        	  System.out.println("SQL ERROR #: " + e.getSQLState());
+        	  if(e.getSQLState().equals("23505") || e.getSQLState().equals("23502") || 
+        			  e.getSQLState().equals("23514") || e.getSQLState().equals("44000") ||
+        			  e.getSQLState().equals("23503")) {
               	%>
               	<div class="alert alert-danger">
       	      		<strong>Error:</strong> Data modification failure. <br>
-      	      		<a href="manageProducts.jsp"> Please try again by clicking here.</a>
+      	      		<a href="viewCategories.jsp"> Please try again by clicking here.</a>
       	   	 	</div>
               	<%
               } else {
