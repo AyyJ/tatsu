@@ -6,7 +6,7 @@ Team: Tatsu
 Arthur de Jesus
 Mandeep Sran
 
-Assumptions:
+##### Assumptions:
 
  * On the categories page, an owner can update or delete any category, regardless of who created the category.
 
@@ -17,5 +17,13 @@ Assumptions:
 
 * The user names and searches are both case sensitive.
 
+##### Technology Used:
+
+  * IDE: Eclipse Jave EE
+  * Database: Postgres
+  * Database GUI: pSequel
+  * Design Toolkit: Bootstrap
+  * Model: Model 1 Type
+  * Server: Tomcat
 ![ER](ER.png)
 ![WIREFRAME](wireDiagram.PNG)
