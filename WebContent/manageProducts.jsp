@@ -20,19 +20,18 @@ if(session.getAttribute("name") == null){
 	<%
 }
 %>
-        <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container-fluid">
-        <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        </button>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
         <a class="navbar-brand" href="#">myShop</a>
-        </div>
-        </div>
-        </nav>
+      </div>
+      <ul class="nav navbar-nav navbar-right"><% if(session.getAttribute("role").equals("2")) { %>
+      <li class="active"><a href="shoppingCart.jsp"><span class="glyphicon glyphicon-shopping-cart"></span>&nbsp; Buy My Shopping Cart</a></li>
+      <% } %>
+      <li class="active"><a href="logout.jsp"><span class="glyphicon glyphicon-log-out"></span>&nbsp; Logout</a></li>
+      </ul>
+    </div>
+  </nav>
 
         <div class="container-fluid">
 		  <div class="row">
@@ -45,13 +44,12 @@ if(session.getAttribute("name") == null){
 					<li><a href="error.html">Categories</a></li>
 				  <% } %>
 				  <% if(session.getAttribute("role").equals("1")){ %>
-					<li class="active"><a href="#">Manage Products <span class="sr-only">(current)</span></a></li>
+					<li class="active"><a href="manageProducts.jsp">Manage Products <span class="sr-only">(current)</span></a></li>
 				  <% } else { %>
 					<li><a href="error.html">Manage Products</a></li>
 				  <% } %>
-				<li><a href="viewProducts.jsp">View Products</a></li>
+				<li><a href="viewProducts.jsp?action=view&id=all">View Products</a></li>
 		        <li><a href="order.jsp">Order</a></li>
-		        <li><a href="shoppingCart.jsp">Shopping Cart</a></li>
 		        <hr />
 		     	<li><a href="manageProducts.jsp?action=view&id=all">All Categories</a></li>
 		        

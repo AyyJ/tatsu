@@ -35,8 +35,10 @@ CREATE TABLE products (
 );
 
 CREATE TABLE purchases (
-  ID        SERIAL,
-  uid      INTEGER REFERENCES users (ID) NOT NULL,
-  product   INTEGER REFERENCES products (ID) NOT NULL
-
+  ID        SERIAL PRIMARY KEY,
+  uid       INTEGER REFERENCES users (ID) NOT NULL,
+  pid       INTEGER REFERENCES products (ID) NOT NULL,
+  quantity  INTEGER NOT NULL,
+  price     INTEGER NOT NULL,
+  timestamp timestamp default current_timestamp
 );

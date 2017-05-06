@@ -9,19 +9,18 @@
         <link rel="stylesheet" href="global.css">
         </head>
         <body>
-        <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container-fluid">
-        <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        </button>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
         <a class="navbar-brand" href="#">myShop</a>
-        </div>
-        </div>
-        </nav>
+      </div>
+      <ul class="nav navbar-nav navbar-right"><% if(session.getAttribute("role").equals("2")) { %>
+      <li class="active"><a href="shoppingCart.jsp"><span class="glyphicon glyphicon-shopping-cart"></span>&nbsp; Buy My Shopping Cart</a></li>
+      <% } %>
+      <li class="active"><a href="logout.jsp"><span class="glyphicon glyphicon-log-out"></span>&nbsp; Logout</a></li>
+      </ul>
+    </div>
+  </nav>
 
         <div class="container-fluid">
 		  <div class="row">
@@ -34,13 +33,12 @@
 					<li><a href="error.html">Categories</a></li>
 				  <% } %>
 				  <% if(session.getAttribute("role").equals("1")){ %>
-					<li><a href="manageProducts.jsp">Manage Products</a></li>
+					<li><a href="manageProducts.jsp?action=view&id=all">Manage Products</a></li>
 				  <% } else { %>
 					<li><a href="error.html">Manage Products</a></li>
 				  <% } %>
 				<li class="active"><a href="viewProducts.jsp">View Products  <span class="sr-only">(current)</span></a></li>
 		        <li><a href="order.jsp">Order</a></li>
-		        <li><a href="shoppingCart.jsp">Shopping Cart</a></li>
 		      <hr />
 		     	<li><a href="viewProducts.jsp?action=view&id=all">All Categories</a></li>
 		        
@@ -90,6 +88,13 @@
 
               	//insert code
                   String action = request.getParameter("action");
+				  if(action != null && action.equals("placed")){
+					  session.setAttribute("inCartP", request.getParameter("id"));
+					  session.setAttribute("inCartQ", request.getParameter("quantity"));
+					  
+				  }
+			
+			
                   if(action != null && action.equals("view") && !request.getParameter("id").equals("all")){
                 	  PreparedStatement pstmt4 = conn.prepareStatement("SELECT * FROM products WHERE category='"
                 			  + request.getParameter("id") + "'");
