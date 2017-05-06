@@ -38,64 +38,265 @@
 				  <% } else { %>
 					<li><a href="error.html">Manage Products</a></li>
 				  <% } %>
-				<li class="active"><a href="#">View Products  <span class="sr-only">(current)</span></a></li>
+				<li class="active"><a href="viewProducts.jsp">View Products  <span class="sr-only">(current)</span></a></li>
 		        <li><a href="order.jsp">Order</a></li>
 		        <li><a href="shoppingCart.jsp">Shopping Cart</a></li>
+		      <hr />
+		     	<li><a href="viewProducts.jsp?action=view&id=all">All Categories</a></li>
+		        
+                  <%-- Import the java.sql package --%>
+                  <%@ page import="java.sql.*"%>
+              <%-- -------- Open Connection Code -------- --%>
+                  <%
+                  
+                  Connection conn = null;
+                  PreparedStatement pstmt = null;
+                  ResultSet rs = null;
+                  
+                  try {
+                      // Registering Postgresql JDBC driver with the DriverManager
+                      Class.forName("org.postgresql.Driver");
+
+                      // Open a connection to the database using DriverManager
+                      conn = DriverManager.getConnection(
+                          "jdbc:postgresql://localhost/Tatsu?" +
+                          "user=postgres&password=postgres1");
+                      
+                  PreparedStatement pstmt3 = conn.prepareStatement("SELECT * FROM categories");
+                  pstmt3.execute();
+                  ResultSet rs3 = pstmt3.getResultSet();
+                  while(rs3.next()){ %>
+                  <li><a href="viewProducts.jsp?action=view&id=<% out.print(rs3.getInt("id")); %>"> <% out.print(rs3.getString("name")); %> </a></li> 
+                  <% } %>
 		      </ul>
+		      
+		 
 		    </div>
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
               <h1 class="page-header">Welcome to myShop <% if(session.getAttribute("name") != null) { out.print(session.getAttribute("name"));} %></h1>
-
+				
         <div class="row placeholders">
-
-        </div>
-        <!-- Save for later?
-        <h2 class="sub-header">Section title</h2>
+      
+     
+		<form action="viewProducts.jsp" method="get">
+					<input type="hidden" name="action" value="search">
+					<label>Search: &nbsp;</label>
+					<input type="text" name="query">
+					<input type="submit" value="Search"/>
+				</form>
         <div class="table-responsive">
-        <table class="table table-striped">
+        
+			<%
+
+              	//insert code
+                  String action = request.getParameter("action");
+                  if(action != null && action.equals("view") && !request.getParameter("id").equals("all")){
+                	  PreparedStatement pstmt4 = conn.prepareStatement("SELECT * FROM products WHERE category='"
+                			  + request.getParameter("id") + "'");
+                      pstmt4.execute();
+                      ResultSet rs4 = pstmt4.getResultSet();
+                      session.setAttribute("filter", request.getParameter("id"));
+                	  %> 
+                	  <table class="table table-striped">
         <thead>
         <tr>
-        <th>#</th>
-        <th>Header</th>
-        <th>Header</th>
-        <th>Header</th>
-        <th>Header</th>
+        <th>Product Name</th>
+        <th>Product SKU</th>
+        <th>Product Category</th>
+        <th>Product Price</th>
+        <th>View Product</th>
         </tr>
-        </thead>
-        <tbody>
+      </thead>
+      <tbody>
+              <%-- -------- Iteration Code -------- --%>
+          <%
+              // Iterate over the ResultSet
+              while (rs4.next()) {
+          %>
+
+          <tr>
+          
+         
+              
+              <%-- Get the name --%>
+              <td>
+                <%=rs4.getString("name")%>
+              </td>
+              
+              <td>
+                <%=rs4.getInt("sku")%>
+              </td>
+              <%
+                PreparedStatement pstmt6 = conn.prepareStatement("SELECT * FROM categories WHERE id='" + 
+                rs4.getInt("category") + "'");
+                pstmt6.execute();
+                ResultSet rs6 = pstmt6.getResultSet();
+                rs6.next(); %>
+              <td><%=rs6.getString("name")%></td>
+               <td>
+                <%=rs4.getInt("price")%>
+              </td>
+              
+            <td>
+            <a href="order.jsp?action=place&id=<%=rs6.getInt("id")%>">View Product</a>
+            </td>
+          </tr>
+          <%
+              }
+                  }
+          
+        
+          if(action != null && action.equals("view") && request.getParameter("id").equals("all")){
+                	  PreparedStatement pstmt5 = conn.prepareStatement("SELECT * FROM products");
+                      pstmt5.execute();
+                      ResultSet rs5 = pstmt5.getResultSet();
+                      session.setAttribute("filter", "all");
+                	  %> 
+                	  <table class="table table-striped">
+        <thead>
         <tr>
-        <td>1,001</td>
-        <td>Lorem</td>
-        <td>ipsum</td>
-        <td>dolor</td>
-        <td>sit</td>
+        <th>Product Name</th>
+        <th>Product SKU</th>
+        <th>Product Category</th>
+        <th>Product Price</th>
+        <th>View Product</th>
         </tr>
-        <tr>
-        <td>1,002</td>
-        <td>amet</td>
-        <td>consectetur</td>
-        <td>adipiscing</td>
-        <td>elit</td>
-        </tr>
-        <tr>
-        <td>1,003</td>
-        <td>Integer</td>
-        <td>nec</td>
-        <td>odio</td>
-        <td>Praesent</td>
-        </tr>
-        <tr>
-        <td>1,003</td>
-        <td>libero</td>
-        <td>Sed</td>
-        <td>cursus</td>
-        <td>ante</td>
-        </tr>
-        </tbody>
-        </table>
-        </div> -->
-        </div>
-        </div>
-        </div>
-        </body>
-        </html>
+      </thead>
+      <tbody>
+              <%-- -------- Iteration Code -------- --%>
+          <%
+              // Iterate over the ResultSet
+              while (rs5.next()) {
+          %>
+
+          <tr>
+              <%-- Get the name --%>
+              <td>
+                <%=rs5.getString("name")%>
+              </td>
+              
+              <td>
+                <%=rs5.getInt("sku")%>
+              </td>
+              <%
+                PreparedStatement pstmt6 = conn.prepareStatement("SELECT * FROM categories WHERE id='" + 
+                rs5.getInt("category") + "'");
+                pstmt6.execute();
+                ResultSet rs6 = pstmt6.getResultSet();
+                rs6.next(); %>
+              <td><%=rs6.getString("name")%></td>
+               <td>
+                <%=rs5.getInt("price")%>
+              </td>
+              
+            <td>
+            <a href="order.jsp?action=place&id=<%=rs5.getInt("id")%>">View Product</a>
+            </td>
+          </tr>
+          <%
+              }         
+          }
+          
+          if(action != null && action.equals("search") && request.getParameter("query") != null){
+        	  PreparedStatement pstmt4;
+        	  if(session.getAttribute("filter") == null || session.getAttribute("filter").equals("all")){
+        	  	  pstmt4 = conn.prepareStatement("SELECT * FROM products WHERE name='"
+        			  + request.getParameter("query") + "'");
+        	  } else {
+        		  pstmt4 = conn.prepareStatement("SELECT * FROM products WHERE name='"
+            			  + request.getParameter("query") + "' AND category='" +
+        		  session.getAttribute("filter") + "'");
+        	  }
+              pstmt4.execute();
+              ResultSet rs4 = pstmt4.getResultSet();
+        	  %> 
+        	  <table class="table table-striped">
+<thead>
+<tr>
+<th>Product Name</th>
+<th>Product SKU</th>
+<th>Product Category</th>
+<th>Product Price</th>
+<th>View Product</th>
+</tr>
+</thead>
+<tbody>
+      <%-- -------- Iteration Code -------- --%>
+  <%
+      // Iterate over the ResultSet
+      while (rs4.next()) {
+  %>
+
+  <tr>
+  <%-- Get the name --%>
+              <td>
+                <%=rs4.getString("name")%>
+              </td>
+              
+              <td>
+                <%=rs4.getInt("sku")%>
+              </td>
+              <%
+                PreparedStatement pstmt6 = conn.prepareStatement("SELECT * FROM categories WHERE id='" + 
+                rs4.getInt("category") + "'");
+                pstmt6.execute();
+                ResultSet rs6 = pstmt6.getResultSet();
+                rs6.next(); %>
+              <td><%=rs6.getString("name")%></td>
+               <td>
+                <%=rs4.getInt("price")%>
+              </td>
+              
+            <td>
+            <a href="order.jsp?action=place&id=<%=rs6.getInt("id")%>">View Product</a>
+            </td>
+          </tr>
+  <%
+      }
+          }
+
+          } catch (SQLException e) {
+          
+        	  if(e.getSQLState().equals("23505") || e.getSQLState().equals("23502") || e.getSQLState().equals("23514") || e.getSQLState().equals("44000")) {
+              	%>
+              	<div class="alert alert-danger">
+      	      		<strong>Error:</strong> Data view failure. <br>
+      	      		<a href="viewProducts.jsp"> Please try again by clicking here.</a>
+      	   	 	</div>
+              	<%
+              } else {
+
+              // Wrap the SQL exception in a runtime exception to propagate
+              // it upwards
+              throw new RuntimeException(e);
+              }
+          }
+          finally {
+              // Release resources in a finally block in reverse-order of
+              // their creation
+
+              if (rs != null) {
+                  try {
+                      rs.close();
+                  } catch (SQLException e) { } // Ignore
+                  rs = null;
+              }
+              if (pstmt != null) {
+                  try {
+                      pstmt.close();
+                  } catch (SQLException e) { } // Ignore
+                  pstmt = null;
+              }
+              if (conn != null) {
+                  try {
+                      conn.close();
+                  } catch (SQLException e) { } // Ignore
+                  conn = null;
+              }
+          }
+          %>
+
+      </tbody>
+      </table>
+      </body>
+      </html>

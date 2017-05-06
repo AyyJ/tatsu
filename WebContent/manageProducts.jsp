@@ -85,10 +85,16 @@ if(session.getAttribute("name") == null){
 		    </div>
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
               <h1 class="page-header">Welcome to myShop <% if(session.getAttribute("name") != null) { out.print(session.getAttribute("name"));} %></h1>
-
+				
         <div class="row placeholders">
       
-
+     
+		<form action="manageProducts.jsp" method="get">
+					<input type="hidden" name="action" value="search">
+					<label>Search: &nbsp;</label>
+					<input type="text" name="query">
+					<input type="submit" value="Search"/>
+				</form>
         <div class="table-responsive">
         
 			<%
@@ -99,6 +105,7 @@ if(session.getAttribute("name") == null){
                   // Check if an insertion is requested
                   if (action != null && action.equals("insert")) {
 					try{ 
+						session.setAttribute("filter", null);
                       // Begin transaction
                       conn.setAutoCommit(false);
 
@@ -130,7 +137,7 @@ if(session.getAttribute("name") == null){
                   }
 		
                   if (action != null && action.equals("update")) {
-					
+					session.setAttribute("filter", null);
                 	try { 
                     // Begin transaction
                     conn.setAutoCommit(false);
@@ -163,6 +170,7 @@ if(session.getAttribute("name") == null){
                   // Check if a delete is requested
                   if (action != null && action.equals("delete")) {
 		      // Begin transaction
+		      session.setAttribute("filter", null);
                     conn.setAutoCommit(false);
 
                     // Create the prepared statement and use it to
@@ -180,6 +188,7 @@ if(session.getAttribute("name") == null){
                 			  + request.getParameter("id") + "'");
                       pstmt4.execute();
                       ResultSet rs4 = pstmt4.getResultSet();
+                      session.setAttribute("filter", request.getParameter("id"));
                 	  %> 
                 	  <table class="table table-striped">
         <thead>
@@ -254,6 +263,7 @@ if(session.getAttribute("name") == null){
                 	  PreparedStatement pstmt5 = conn.prepareStatement("SELECT * FROM products");
                       pstmt5.execute();
                       ResultSet rs5 = pstmt5.getResultSet();
+                      session.setAttribute("filter", "all");
                 	  %> 
                 	  <table class="table table-striped">
         <thead>
@@ -322,13 +332,90 @@ if(session.getAttribute("name") == null){
             </form>
           </tr>
           <%
-              }
+              }         
+          }
           
+          if(action != null && action.equals("search") && request.getParameter("query") != null){
+        	  PreparedStatement pstmt4;
+        	  if(session.getAttribute("filter") == null || session.getAttribute("filter").equals("all")){
+        	  	  pstmt4 = conn.prepareStatement("SELECT * FROM products WHERE name='"
+        			  + request.getParameter("query") + "'");
+        	  } else {
+        		  pstmt4 = conn.prepareStatement("SELECT * FROM products WHERE name='"
+            			  + request.getParameter("query") + "' AND category='" +
+        		  session.getAttribute("filter") + "'");
+        	  }
+              pstmt4.execute();
+              ResultSet rs4 = pstmt4.getResultSet();
+        	  %> 
+        	  <table class="table table-striped">
+<thead>
+<tr>
+<th>Product ID</th>
+<th>Product Name</th>
+<th>Product SKU</th>
+<th>Product Category</th>
+<th>Product Price</th>
+</tr>
+</thead>
+<tbody>
+      <%-- -------- Iteration Code -------- --%>
+  <%
+      // Iterate over the ResultSet
+      while (rs4.next()) {
+  %>
+
+  <tr>
+  
+    <form action="manageProducts.jsp" method="POST">
+      <input type="hidden" name="action" value="update"/> 
+      <input type="hidden" value="<%=rs4.getInt("id")%>" name="id"/>
+      
+      <td>
+        <%=rs4.getString("id")%>
+      </td>
+      <%-- Get the name --%>
+      <td>
+        <input value="<%=rs4.getString("name")%>" name="pname"/>
+      </td>
+      
+      <td>
+        <input value="<%=rs4.getInt("sku")%>" name="psku"/>
+      </td>
+      <%
+        PreparedStatement pstmt6 = conn.prepareStatement("SELECT * FROM categories WHERE id='" + 
+        rs4.getInt("category") + "'");
+        pstmt6.execute();
+        ResultSet rs6 = pstmt6.getResultSet();
+        rs6.next(); %>
+      <td><select name="pcat">
+           <option value="<% out.print(rs6.getInt("id")); %>"> <% out.print(rs6.getString("name")); %> </option> 
+           <%
+          PreparedStatement pstmt2 = conn.prepareStatement("SELECT * FROM categories WHERE NOT id='" + 
+                  rs4.getInt("category") + "'");
+          pstmt2.execute();
+          ResultSet rs2 = pstmt2.getResultSet();
+          while(rs2.next()){ %>
+          <option value="<% out.print(rs2.getInt("id")); %>"> <% out.print(rs2.getString("name")); %> </option> 
+          <% } %>
+          </select></td>
+       <td>
+        <input value="<%=rs4.getInt("price")%>" name="pprice"/>
+      </td>
+      <%-- Button --%>
+      <td><input type="submit" value="Update"></td>
+    </form>
+    <form action="manageProducts.jsp" method="POST">
+      <input type="hidden" name="action" value="delete"/>
+      <input type="hidden" value="<%=rs4.getInt("id")%>" name="id"/>
+      <%-- Button --%>
+      <td><input type="submit" value="Delete"/></td>
+    </form>
+  </tr>
+  <%
+      }
+          }
           
-          %>
-                	  
-                	  <%
-                  }
               //Connection code
               Statement statement = conn.createStatement();
               rs = statement.executeQuery("SELECT * FROM products");
