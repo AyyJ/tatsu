@@ -52,6 +52,7 @@ if(session.getAttribute("name") == null){
 				<li><a href="viewProducts.jsp">View Products</a></li>
 		        <li><a href="order.jsp">Order</a></li>
 		        <li><a href="shoppingCart.jsp">Shopping Cart</a></li>
+		        <hr />
 		     	<li><a href="manageProducts.jsp?action=view&id=all">All Categories</a></li>
 		        
                   <%-- Import the java.sql package --%>
@@ -214,15 +215,23 @@ if(session.getAttribute("name") == null){
               <td>
                 <input value="<%=rs4.getInt("sku")%>" name="psku"/>
               </td>
-              <td>
-                <input value="<%
+              <%
                 PreparedStatement pstmt6 = conn.prepareStatement("SELECT * FROM categories WHERE id='" + 
                 rs4.getInt("category") + "'");
                 pstmt6.execute();
                 ResultSet rs6 = pstmt6.getResultSet();
-                rs6.next();
-                out.print(rs6.getString("name")); %>" name="pcat"/>
-              </td>
+                rs6.next(); %>
+              <td><select name="pcat">
+                   <option value="<% out.print(rs6.getInt("id")); %>"> <% out.print(rs6.getString("name")); %> </option> 
+                   <%
+                  PreparedStatement pstmt2 = conn.prepareStatement("SELECT * FROM categories WHERE NOT id='" + 
+                          rs4.getInt("category") + "'");
+                  pstmt2.execute();
+                  ResultSet rs2 = pstmt2.getResultSet();
+                  while(rs2.next()){ %>
+                  <option value="<% out.print(rs2.getInt("id")); %>"> <% out.print(rs2.getString("name")); %> </option> 
+                  <% } %>
+                  </select></td>
                <td>
                 <input value="<%=rs4.getInt("price")%>" name="pprice"/>
               </td>
@@ -280,15 +289,25 @@ if(session.getAttribute("name") == null){
               <td>
                 <input value="<%=rs5.getInt("sku")%>" name="psku"/>
               </td>
-              <td>
-                <input value="<%
+  			    <%
                 PreparedStatement pstmt6 = conn.prepareStatement("SELECT * FROM categories WHERE id='" + 
                 rs5.getInt("category") + "'");
                 pstmt6.execute();
                 ResultSet rs6 = pstmt6.getResultSet();
-                rs6.next();
-                out.print(rs6.getString("name")); %>" name="pcat"/>
-              </td>
+                rs6.next(); %>
+              <td><select name="pcat">
+                   <option value="<% out.print(rs6.getInt("id")); %>"> <% out.print(rs6.getString("name")); %> </option> 
+                   <%
+                  PreparedStatement pstmt2 = conn.prepareStatement("SELECT * FROM categories WHERE NOT id='" + 
+                          rs5.getInt("category") + "'");
+                  pstmt2.execute();
+                  ResultSet rs2 = pstmt2.getResultSet();
+                  while(rs2.next()){ %>
+                  <option value="<% out.print(rs2.getInt("id")); %>"> <% out.print(rs2.getString("name")); %> </option> 
+                  <% } %>
+                  </select></td>
+              
+              
                <td>
                 <input value="<%=rs5.getInt("price")%>" name="pprice"/>
               </td>
