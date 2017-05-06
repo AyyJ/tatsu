@@ -6,6 +6,12 @@ Team: Tatsu
 Arthur de Jesus
 Mandeep Sran
 
+##### Required Setup:
+  * Create a database named "Tatsu" (note the capital T)
+  * Run db.sql in your GUI of choice
+  * We have the username and password set to postgres and postgres1 respectively
+  * Make sure your eclipse project is name "135" to visit "localhost:8080/135"
+
 ##### Assumptions:
 
  * On the categories page, an owner can update or delete any category, regardless of who created the category.
