@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Product Order</title>
+<title>Shopping Cart</title>
 </head>
 <body>
 	<% if(session.getAttribute("roleName") != null) { %>
@@ -16,8 +16,7 @@
 				<td></td>
 				<td>
 					<h3>Hello <%= session.getAttribute("personName") %></h3>
-					<h3>Product Order</h3>
-					<h3>Congratulations!!! Your purchase is complete.</h3>
+					<h3>Shopping Cart</h3>
 					<table border=1>
 				        <thead>
 				            <tr>
@@ -34,17 +33,23 @@
 								<td><%= prod.getPrice() %></td>
 								<td><%= prod.getQuantity() %></td>
 								</tr>
-							<% 	
+								<% 	
 								total = total + prod.getPrice() * prod.getQuantity();
 							} %>
 							<p>Total = <%= total %></p>
-				    </table>
-				    <a href="./productsearch.jsp">Continue Browsing</a>
-				</td>
-			</tr>
-		</table>
+							<form method="post" action="./BuyController">
+							<p>Credit Card Information : 
+							<input type="text" name="ccinfo" style="margin:10px;" required="true"></input></p>
+							<% if(sc.size() > 0) { %>
+								<button type="submit" value="pay" style="margin: 10px;">Purchase</button>
+							<% } %>
+					</form>
+						</table>
+					</td>
+				</tr>
+			</table>
 		<% } else { %>
 			<h3>Please <a href = "./login.jsp">login</a> before viewing the page</h3>
 		<% } %>
-</body>
+	</body>
 </html>
