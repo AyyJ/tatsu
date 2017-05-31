@@ -57,3 +57,7 @@ CREATE TABLE products_in_cart(
 	price REAL NOT NULL CHECK (price >= 0.0),
 	quantity INTEGER NOT NULL CHECK (quantity > 0)
 );
+
+CREATE INDEX indexOnPersonName ON person(person_name);
+CREATE INDEX indexOnProductName ON product(product_name);
+CREATE INDEX indexOnCategoryName ON category(category_name);
