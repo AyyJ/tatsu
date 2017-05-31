@@ -33,9 +33,7 @@
 					<% if (request.getAttribute("message")!=null) {%>
 						<h4> Message : <%= request.getAttribute("message").toString()%></h4> 
 					<%}%>
-					</td>
-					</tr>
-					</table>
+				
 					<%
 					PreparedStatement pstmt = null;
 					ResultSet rs = null;
@@ -76,6 +74,9 @@
 					</tr>
 					<% }
 					%>
+					</table>
+					</td>
+					</tr>
 					</table>
 					<%
 		}
