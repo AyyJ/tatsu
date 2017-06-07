@@ -38,23 +38,19 @@
 					PreparedStatement pstmt = null;
 					ResultSet rs = null;
 					
-					/* The following query is from Stack Overflow @
-					 * https://stackoverflow.com/questions/42310655/sql-computation-of-cosine-similarity
-					 */
-					
-					pstmt = con.prepareStatement("with data as (select product_name as v , person.id as base, sum(products_in_cart.price * products_in_cart.quantity)as w_td " +
-							"from product, person, products_in_cart, shopping_cart where shopping_cart.is_purchased = 'true' and "+
-							"product.id = products_in_cart.product_id and products_in_cart.cart_id = shopping_cart.id and "+
-							"shopping_cart.person_id = person.id group by product.id, person.id order by product.id), "+
-							"norms as ( "+
-							  "select v,sum(w_td) as w2 "+
-							    "from data "+
-							    "group by v) "+
-							"select x.v as ego,y.v as v,nx.w2 as x2, ny.w2 as y2, "+
-							    "sum(x.w_td * y.w_td) / (nx.w2 * ny.w2) as cosine, 3"+
-							"from data as x join data as y on (x.base=y.base) "+
-							"join norms as nx on (nx.v=x.v) join norms as ny on (ny.v=y.v) where x.v < y.v "+
-							"group by 1,2,3,4 order by 5 desc limit 100");
+					pstmt = con.prepareStatement("WITH SALES AS (select pc.product_id,sc.person_id,sum(pc.price*pc.quantity) as amount " +  
+						 	"from products_in_cart pc " +
+						 	"inner join shopping_cart sc on (sc.id = pc.cart_id and sc.is_purchased = true) " +
+						 	"group by pc.product_id,sc.person_id), " +
+						 "DENOM AS ( " +
+							"SELECT product_id, SUM(amount) as denom_sums " +
+							"FROM SALES " +
+							"GROUP BY product_id) " +
+						"SELECT s1.product_id, s2.product_id AS s2_prod, (SUM (s1.amount*s2.amount)/(d1.denom_sums * d2.denom_sums)) as val " +
+						"FROM SALES s1 JOIN SALES s2 ON (s1.product_id < s2.product_id), DENOM d1, DENOM d2 " +
+						"WHERE s1.person_id = s2.person_id AND d1.product_id = s1.product_id AND d2.product_id = s2.product_id " +
+						"GROUP BY (s1.product_id, s2_prod,d1.denom_sums, d2.denom_sums) " +
+						"ORDER BY val desc LIMIT 100;");
 					
 					rs = pstmt.executeQuery();
 					%>
@@ -68,9 +64,9 @@
 					<%
 					while(rs.next()){ %>
 					<tr>
-						<td> <%=rs.getString("ego")%></td>
--						<td> <%=rs.getString("v") %></td>
--						<td> <%=rs.getFloat("cosine") %></td>
+						<td> <%=rs.getString("product_id")%></td>
+-						<td> <%=rs.getString("s2_prod") %></td>
+-						<td> <%=rs.getFloat("val") %></td>
 					</tr>
 					<% }
 					%>
