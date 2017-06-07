@@ -20,6 +20,8 @@
 		%>
 		<li><a href='productsearch.jsp'>Products Browsing</a></li>
 		<li><a href='./BuyController'>Buy Shopping Cart</a></li>
+		<li><a href='buyorders.jsp'>Buy N Orders</a></li>
+
 	<% } %>
 </ul>
 </body>
