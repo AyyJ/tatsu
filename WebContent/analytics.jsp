@@ -8,6 +8,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="main.js"></script>
 <title>Sales Analytics</title>
 </head>
 <body>
@@ -179,10 +180,12 @@
     			
     			//done with columns and rows
     			%>
+    		
+    			
     			<table border =1 align="center">
 
     			<tr>
-    			<td></td>
+    			<td><button onClick="refreshTable();" value="refresh">Refresh</button></td>
     			<%
     				for(String prod:products){
     					pstmt = conn.prepareStatement("SELECT SUM(products_in_cart.price * products_in_cart.quantity) AS total " +
@@ -201,7 +204,7 @@
     					<%
     				}
     			%>
-    			</tr>
+    			<td><button onClick="refreshTable();" value="refresh">Refresh</button></td></tr>
     			<%
     				for(String cons:consumers){
     		////////////////////////// Table for Customers ////////////////////
@@ -296,10 +299,16 @@
 	    							</tr> <%
     							}
     						}
-    					
-    				
     			%>
+    			<tr>
+    			<td><button onClick="refreshTable();" value="refresh">Refresh</button></td>
+    			<% for(String prod:products){ %>
+    			
+    			  <td></td>
+    			  <% } %>
+    			  <td><button onClick="refreshTable();" value="refresh">Refresh</button></td>
     			</table>
+    			
     			<%
             }
 			catch(SQLException e){
