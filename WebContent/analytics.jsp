@@ -185,16 +185,15 @@
     			<td></td>
     			<%
     				for(String prod:products){
-    					
     					pstmt = conn.prepareStatement("SELECT SUM(products_in_cart.price * products_in_cart.quantity) AS total " +
 														"FROM products_in_cart " +
-														"INNER JOIN product ON products_in_cart.product_id = product_id " +
+														"INNER JOIN product ON products_in_cart.product_id = product.id " +
 														"WHERE product.product_name = ?");
     					pstmt.setString(1, prod);
     					rs = pstmt.executeQuery();
     					while(rs.next()){
     						// doesn't work. need to look at query. TODO
-    						sum2 = sum2 + (int)rs.getDouble("total");
+    						sum2 = (int)rs.getDouble("total");
     					}
     					%>
     					<!--  TODO fix this so it displays sum -->
@@ -210,16 +209,25 @@
     						if(filter.equals("all")){
 	    						
 	    							// rows. top k ordering, filter by all
-	    							pstmt = conn.prepareStatement("select prod.product_name, sum(prod.total)as total "
-	    									+ "from(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as total "
+	    							pstmt = conn.prepareStatement("select prod.product_name, 2*sum(prod.sum)/count(prod) as total, sum(prod2.sum2) as total2 "
+	    									+ "from (select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum "
 	    									+ "from state, product,person,shopping_cart,products_in_cart where state.state_name = ? and "
 	    									+ "person.state_id = state.id and person.id = shopping_cart.person_id and "
 	    									+ "shopping_cart.id = products_in_cart.cart_id and "
 	    									+ "product.id = products_in_cart.product_id group by product_name "
 	    									+ "union "
-	    									+ "select product_name,'0' from product)prod "
-	    									+ "group by prod.product_name order by total desc");
+	    									+ "select product_name,'0' from product) as prod, "
+	    									+ "(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum2 "
+	    	    							+ "from state, product,person,shopping_cart,products_in_cart where state.state_name = ? and "
+	    	    							+ "person.state_id = state.id and person.id = shopping_cart.person_id and "
+	    	    							+ "shopping_cart.id = products_in_cart.cart_id and "
+	    	    							+ "product.id = products_in_cart.product_id group by product_name "
+	    	    							+ "union "
+	    	    							+ "select product_name,'0' from product) as prod2 "
+	    									+ "where prod.product_name = prod2.product_name "
+	    									+ "group by prod.product_name order by total2 desc");
 	    							pstmt.setString(1,cons);
+	    							pstmt.setString(2,consumers.get(0));
 	    							rs = pstmt.executeQuery();
 	    							sum = 0;
 	    							while(rs.next())
@@ -229,7 +237,9 @@
 	    							<td><%= cons %> ($<%= sum %>)</td>
 	    							<%
 	    							pstmt.setString(1,cons);
+	    							pstmt.setString(2,consumers.get(0));
 	    							rs2 = pstmt.executeQuery();
+	    							
 	    							while(rs2.next()){ %>
 	    								<td>$<%= rs2.getInt("total") %></td>
 	    							<% } %>
@@ -238,7 +248,7 @@
     						
     						else{
     						
-    								pstmt = conn.prepareStatement("select prod.product_name, sum(prod.sum)as total "
+    								pstmt = conn.prepareStatement("select prod.product_name, 2*sum(prod.sum)/count(prod) as total, sum(prod2.sum2) as total2 "
     										+ "from(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum "
     										+"from state, product,person,shopping_cart,products_in_cart,category "
     										+"where state.state_name = ? and person.state_id = state.id and "
@@ -247,11 +257,24 @@
     										+"category.category_name = ? group by product_name "
     										+"union "
     										+"select product_name,'0'  from product,category "
-    										+"where category.id = product.category_id and category.category_name = ? )prod "
-    										+"group by prod.product_name order by total desc");
+    										+"where category.id = product.category_id and category.category_name = ? )prod, "
+    										+"(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum2 "
+    	    								+"from state, product,person,shopping_cart,products_in_cart,category "
+    	    								+"where state.state_name = ? and person.state_id = state.id and "
+    	    								+"person.id = shopping_cart.person_id and shopping_cart.id = products_in_cart.cart_id and "
+    	    								+"product.id = products_in_cart.product_id and product.category_id = category.id and "
+    	    								+"category.category_name = ? group by product_name "
+    	    								+"union "
+    	    								+"select product_name,'0'  from product,category "
+    	    								+"where category.id = product.category_id and category.category_name = ? )prod2 "
+    										+ "where prod.product_name = prod2.product_name "
+    										+"group by prod.product_name order by total2 desc");
     								pstmt.setString(1,cons);
     								pstmt.setString(2,filter);
     								pstmt.setString(3,filter);
+    								pstmt.setString(4,consumers.get(0));
+    								pstmt.setString(5,filter);
+    								pstmt.setString(6,filter);
 	    							rs = pstmt.executeQuery();
 	    							sum = 0;
 	    							while(rs.next())
@@ -263,6 +286,9 @@
 	    							pstmt.setString(1,cons);
     								pstmt.setString(2,filter);
     								pstmt.setString(3,filter);
+    								pstmt.setString(4,consumers.get(0));
+    								pstmt.setString(5,filter);
+    								pstmt.setString(6,filter);
 	    							rs2 = pstmt.executeQuery();
 	    							while(rs2.next()){ %>
 	    								<td>$<%= rs2.getInt("total") %></td>
