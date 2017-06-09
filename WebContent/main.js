@@ -1,30 +1,3 @@
-function showCustXML(str) {
-	document.getElementById("log").innerHTML = "inside showCust";
-	 var xmlHttp = new XMLHttpRequest();
-	 var url="xmlCustomer.jsp";
-	 url = url + "?person=" + str;
-	 var stateChanged = function () {
-			document.getElementById("log").innerHTML = "inside statechanged";
-			 if (xmlHttp.readyState==4) {
-				 var xmlDoc=xmlHttp.responseXML.documentElement;
-				 console.log(xmlDoc);
-				 document.getElementById("company").innerHTML =
-				 xmlDoc.getElementsByTagName("name")[0].childNodes[0].nodeValue;
-				 document.getElementById("contact").innerHTML =
-				 xmlDoc.getElementsByTagName("type")[0].childNodes[0].nodeValue;
-				 document.getElementById("address").innerHTML =
-				 xmlDoc.getElementsByTagName("address")[0].childNodes[0].nodeValue;
-				 document.getElementById("city").innerHTML =
-				 xmlDoc.getElementsByTagName("city")[0].childNodes[0].nodeValue;
-				 document.getElementById("country").innerHTML =
-				 xmlDoc.getElementsByTagName("country")[0].childNodes[0].nodeValue;
-			 }
-		}
-	 xmlHttp.onreadystatechange = stateChanged;
-	 xmlHttp.open("GET", url, true);
-	 xmlHttp.send(null);
-	}
-
 function showCustJson(str) {
 	document.getElementById("log").innerHTML = "inside showCustJson";
 	 var xmlHttp = new XMLHttpRequest();
