@@ -10,6 +10,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script type="text/javascript" src="main.js"></script>
 <script src="analytics.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <title>Sales Analytics</title>
 </head>
 <body>

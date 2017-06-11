@@ -159,7 +159,7 @@
 					<h3>Hello <%= session.getAttribute("personName") %></h3>
 				<h3>Buy N Orders</h3>
 				<p> Provide number of orders to be inserted. It will insert 'N' carts and '5' products for each cart, of random quantity between 1 and 10. Customers and Products are picked up randomly from the table </p> 
-				<form method="GET" action="buyOrders.jsp" id="buyOrders">
+				<form method="GET" action="buyorders.jsp" id="buyOrders">
 					Enter number of Orders : <input type="text" name="totalOrder" required=true/>
 					<input type="submit" value="Buy" class="submitBtn"/>
 				</form>
