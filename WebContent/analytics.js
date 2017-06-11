@@ -1,8 +1,8 @@
 function refreshTable() {
 
     $.ajax({
-        type: 'GET',
-        url: 'analytics.jsp',
+        method: 'POST',
+        url: 'analytics_json.jsp',
         dataType: 'text json',
         success: function(response) {
 

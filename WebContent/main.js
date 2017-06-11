@@ -1,15 +1,12 @@
-function showCustJson(str) {
-	document.getElementById("log").innerHTML = "inside showCustJson";
+function showCustJson() {
+	 var str = document.getElementById('filter_id').value;
 	 var xmlHttp = new XMLHttpRequest();
-	 var url="jsonCustomer.jsp";
-	 url = url + "?action=all";
+	 var url= "analytics_json.jsp";
+	 url = url + "?filter=" + str;
 	 var stateChanged = function () {
-			document.getElementById("log").innerHTML = "inside statechanged";
 			 if (xmlHttp.readyState==4) {
-			  console.log(xmlHttp.responseText);
 			  var jsonStr = xmlHttp.responseText;
 			  var result = JSON.parse(jsonStr);
-			  console.log(result);
 			  listAllRows(result);
 			 }
 		}
@@ -26,10 +23,8 @@ function changeColor(){
 	 var stateChanged = function () {
 			document.getElementById("log").innerHTML = "inside statechanged";
 			 if (xmlHttp.readyState==4) {
-			  console.log(xmlHttp.responseText);
 			  var jsonStr = xmlHttp.responseText;
 			  var result = JSON.parse(jsonStr);
-			  console.log(result);
 			  showDelta(result);
 			 }
 		}
@@ -55,13 +50,17 @@ function showDelta(obj) {
 function listAllRows(obj) {
     var i;
     var row="";
-    var arr = obj.CompanyList;
+    var cols="";
+    var arr = obj.prod_headers;
+    var arr2 = obj.states;
     for(i = 0; i < arr.length; i++) {
-    	row = row + "<tr><td id=name_"+arr[i].id+"><label>"+ arr[i].name +"</label></td>" +
-    	"<td id=city_"+ arr[i].id +"><label>"+ arr[i].city +" </label></td>"+
-    	"</tr>";
+    	row = row + "<td>"+ arr[i].prod_name +" ($" + arr[i].prod_total + ") </td>";
     }
-    console.log(row);
-    document.getElementById("tablebody").innerHTML = row;
+    row = row + "</tr>";
+    for(i = 0; i < arr2.length; i++){
+    	cols = cols + "<td>"+ arr2[i].state_name +" ($" + arr2[i].state_overall_total + ") </td></tr>" + 
+    		"";
+    }
+    document.getElementById("tablebody").innerHTML = row + cols;
     
 }

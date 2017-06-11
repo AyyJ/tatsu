@@ -38,287 +38,45 @@
 						<% if (request.getAttribute("message")!=null) {%>
 							<h4> Message : <%= request.getAttribute("message").toString()%></h4>
 						<%}%>
-
-
 			<%
-			
-			String filter = request.getParameter("filter");
-			String firstPage = request.getParameter("firstPage");
+			String filter = request.getParameter("filter");;
 			if(filter == null)
 				filter = "all";
-			if(firstPage == null)
-				firstPage = "true";
-			
-
-
-
-		
-			
 			%>
 						<form action="analytics.jsp" method="post" >
 								Filter By:
-								<select name="filter">
+								<select name="filter" id="filter_id">
 										<option value="<%=filter %>"><%=filter %></option>
 										<%
 										if(!filter.equals("all")) {%>
 										<option value="all">all</option> <% }
 
 											for (CategoryModel cat : category_list) {
-										    if(!(cat.getCategoryName().equals(filter))){
+										    	if(!(cat.getCategoryName().equals(filter))){
 										%>
 										<option value="<%=cat.getCategoryName()%>"><%=cat.getCategoryName()%></option>
 										<%
-											} }
+												} 
+										   }
 										%>
 								</select>
-								<input type="hidden" value="true" name="firstPage" />
-							<h4><input type="submit" value="Run Query" /></h4>
+							
 						</form>
+            <button onClick="showCustJson();" value="Run">Run Query</button><br><br>
+          <button onClick="refreshTable();" value="refresh" style="float: left;">Refresh</button>
+          <button onClick="refreshTable();" value="refresh" style="float: right;">Refresh</button>
+          <table border =1 align="center">
+            <tbody id="tablebody">
+              <!-- RESULTS PRINT HERE -->
+            </tbody>
+          </table>
+          <button onClick="refreshTable();" value="refresh" style="float: left;">Refresh</button>
+          <button onClick="refreshTable();" value="refresh" style="float: right;">Refresh</button>
+
+				
 					</td>
-				</tr>
-			</table>
-			<%
-			ArrayList<String> consumers = new ArrayList<String>();
-			ArrayList<String> products = new ArrayList<String>();
-			int sum = 0;
-			int sum2 = 0;
-			%>
-
-		<%-- -------- Open Connection Code -------- --%>
-    	<%
-
-    		Connection conn = null;
-    		PreparedStatement pstmt = null;
-    		PreparedStatement pstmt2 = null;
-    		ResultSet rs3 = null;
-    		ResultSet rs = null;
-    		ResultSet rs2 = null;
-    		ResultSet rs4 = null;
-
-    		try {
-    			// Registering Postgresql JDBC driver with the DriverManager
-    			Class.forName("org.postgresql.Driver");
-
-    			// Open a connection to the database using DriverManager
-    			conn = DriverManager.getConnection(
-    			"jdbc:postgresql://localhost/Tatsu?" +
-    			"user=postgres&password=postgres1");
-
-    			if(filter.equals("all")){
-    			
-    						// top k state ordering, filter by all
-    						pstmt = conn.prepareStatement("SELECT * FROM topSales ORDER BY totalsale DESC LIMIT 50 ");
-    						rs = pstmt.executeQuery();
-    						while(rs.next()) {
-    							products.add(rs.getString("product_name"));
-							}
-    						pstmt2 = conn.prepareStatement("SELECT * FROM stateSales ORDER BY totalsale DESC LIMIT 50 ");
-    						rs2 = pstmt2.executeQuery();
-    						while(rs2.next()){
-    							consumers.add(rs2.getString("state_name"));
-    					}
-    		}
-    				
-    				else{
-    					
-    						// top k state ordering, filter by category
-    						pstmt = conn.prepareStatement("SELECT * FROM filteredProdSales "
-									+ "WHERE category_name=? ORDER BY totalsale DESC LIMIT 50");
-    						pstmt.setString(1,filter);
-    						rs = pstmt.executeQuery();
-    						while(rs.next()){
-    							products.add(rs.getString("product_name"));
-    						}
-    						pstmt2 = conn.prepareStatement("SELECT * FROM filteredStateSales WHERE category_name=? union SELECT * FROM filteredStateSales WHERE category_name is null ORDER BY totalsale DESC LIMIT 50 ");
-    						pstmt2.setString(1,filter);
-    						rs2 = pstmt2.executeQuery();
-    						while(rs2.next()){
-    							consumers.add(rs2.getString("state_name"));
-    						}
-    					}
-    			
-    				
-    			
-    			//done with columns and rows
-    			%>
-    		
-    			
-    			<table border =1 align="center">
-
-    			<tr>
-    			<td><button onClick="refreshTable();" value="refresh">Refresh
-    			<input type="hidden" value="false" name="firstPage" /></button></td>
-    			<%
-    				for(String prod:products){
-    					pstmt = conn.prepareStatement("SELECT SUM(products_in_cart.price * products_in_cart.quantity) AS total " +
-														"FROM products_in_cart " +
-														"INNER JOIN product ON products_in_cart.product_id = product.id " +
-														"WHERE product.product_name = ?");
-    					pstmt.setString(1, prod);
-    					rs = pstmt.executeQuery();
-    					while(rs.next()){
-    						// doesn't work. need to look at query. TODO
-    						sum2 = (int)rs.getDouble("total");
-    					}
-    					%>
-    					<td><%=prod %> ($<%=sum2 %>)</td>
-    					<%
-    				}
-    			%>
-    			<td><button onClick="refreshTable();" value="refresh">Refresh
-    			<input type="hidden" value="false" name="firstPage" /> </button></td></tr>
-    			<%
-    				for(String cons:consumers){
-    		////////////////////////// Table for Customers ////////////////////
-    					
-    						if(filter.equals("all")){
-	    						
-	    							// rows. top k ordering, filter by all
-	    							pstmt = conn.prepareStatement("select prod.product_name, 2*sum(prod.sum)/count(prod) as total, sum(prod2.sum2) as total2 "
-	    									+ "from (select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum "
-	    									+ "from state, product,person,shopping_cart,products_in_cart where state.state_name = ? and "
-	    									+ "person.state_id = state.id and person.id = shopping_cart.person_id and "
-	    									+ "shopping_cart.id = products_in_cart.cart_id and "
-	    									+ "product.id = products_in_cart.product_id group by product_name "
-	    									+ "union "
-	    									+ "select product_name,'0' from product) as prod, "
-	    									+ "(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum2 "
-	    	    							+ "from state, product,person,shopping_cart,products_in_cart where state.state_name = ? and "
-	    	    							+ "person.state_id = state.id and person.id = shopping_cart.person_id and "
-	    	    							+ "shopping_cart.id = products_in_cart.cart_id and "
-	    	    							+ "product.id = products_in_cart.product_id group by product_name "
-	    	    							+ "union "
-	    	    							+ "select product_name,'0' from product) as prod2 "
-	    									+ "where prod.product_name = prod2.product_name "
-	    									+ "group by prod.product_name order by total2 desc");
-	    							pstmt.setString(1,cons);
-	    							pstmt.setString(2,consumers.get(0));
-	    							rs = pstmt.executeQuery();
-	    							sum = 0;
-	    							while(rs.next())
-	    								sum = sum + rs.getInt("total");
-	    							%>
-	    							<tr>
-	    							<td><%= cons %> ($<%= sum %>)</td>
-	    							<%
-	    							pstmt.setString(1,cons);
-	    							pstmt.setString(2,consumers.get(0));
-	    							rs2 = pstmt.executeQuery();
-	    							
-	    							while(rs2.next()){ %>
-	    								<td>$<%= rs2.getInt("total") %></td>
-	    							<% } %>
-	    							</tr> <%
-	    						}
-    						
-    						else{
-    						
-    								pstmt = conn.prepareStatement("select prod.product_name, 2*sum(prod.sum)/count(prod) as total, sum(prod2.sum2) as total2 "
-    										+ "from(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum "
-    										+"from state, product,person,shopping_cart,products_in_cart,category "
-    										+"where state.state_name = ? and person.state_id = state.id and "
-    										+"person.id = shopping_cart.person_id and shopping_cart.id = products_in_cart.cart_id and "
-    										+"product.id = products_in_cart.product_id and product.category_id = category.id and "
-    										+"category.category_name = ? group by product_name "
-    										+"union "
-    										+"select product_name,'0'  from product,category "
-    										+"where category.id = product.category_id and category.category_name = ? )prod, "
-    										+"(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum2 "
-    	    								+"from state, product,person,shopping_cart,products_in_cart,category "
-    	    								+"where state.state_name = ? and person.state_id = state.id and "
-    	    								+"person.id = shopping_cart.person_id and shopping_cart.id = products_in_cart.cart_id and "
-    	    								+"product.id = products_in_cart.product_id and product.category_id = category.id and "
-    	    								+"category.category_name = ? group by product_name "
-    	    								+"union "
-    	    								+"select product_name,'0'  from product,category "
-    	    								+"where category.id = product.category_id and category.category_name = ? )prod2 "
-    										+ "where prod.product_name = prod2.product_name "
-    										+"group by prod.product_name order by total2 desc");
-    								pstmt.setString(1,cons);
-    								pstmt.setString(2,filter);
-    								pstmt.setString(3,filter);
-    								pstmt.setString(4,consumers.get(0));
-    								pstmt.setString(5,filter);
-    								pstmt.setString(6,filter);
-	    							rs = pstmt.executeQuery();
-	    							sum = 0;
-	    							while(rs.next())
-	    								sum = sum + rs.getInt("total");
-	    							%>
-	    							<tr>
-	    							<td><%= cons %> ($<%= sum %>)</td>
-	    							<%
-	    							pstmt.setString(1,cons);
-    								pstmt.setString(2,filter);
-    								pstmt.setString(3,filter);
-    								pstmt.setString(4,consumers.get(0));
-    								pstmt.setString(5,filter);
-    								pstmt.setString(6,filter);
-	    							rs2 = pstmt.executeQuery();
-	    							while(rs2.next()){ %>
-	    								<td>$<%= rs2.getInt("total") %></td>
-	    							<% } %>
-	    							</tr> <%
-    							}
-    						}
-    			%>
-    			<tr>
-    			<td><button onClick="refreshTable();" value="refresh">Refresh
-    			<input type="hidden" value="false" name="firstPage" /></button></td>
-    			<% for(String prod:products){ %>
-    			
-    			  <td></td>
-    			  <% } %>
-    			  <td><button onClick="refreshTable();" value="refresh">Refresh
-    			  <input type="hidden" value="false" name="firstPage" /></button></td>
-    			</table>
-    			
-    			<%
-            }
-			catch(SQLException e){
-    			System.out.print(e + "\n");
-    		}
-            finally{
-            	if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (SQLException e) { } // Ignore
-                    rs = null;
-                }
-            	if (rs2 != null) {
-                    try {
-                        rs2.close();
-                    } catch (SQLException e) { } // Ignore
-                    rs2 = null;
-                }
-            	if (rs3 != null) {
-                    try {
-                        rs3.close();
-                    } catch (SQLException e) { } // Ignore
-                    rs3 = null;
-                }
-                if (pstmt != null) {
-                    try {
-                        pstmt.close();
-                    } catch (SQLException e) { } // Ignore
-                    pstmt = null;
-                }
-                if (pstmt2 != null) {
-                    try {
-                        pstmt2.close();
-                    } catch (SQLException e) { } // Ignore
-                    pstmt2 = null;
-                }
-                if (conn != null) {
-                    try {
-                        conn.close();
-                    } catch (SQLException e) { } // Ignore
-                    conn = null;
-                }
-            }
-
-		}
-		else { %>
+				</tr> 
+	<% } else { %>
 			<h3>This page is available to owners only</h3>
 		<%
 		}

@@ -3,15 +3,6 @@
 <%@page import="java.sql.*, java.lang.*, org.json.*, ucsd.shoppingApp.ConnectionManager, ucsd.shoppingApp.*"%>
 <%@ page import="ucsd.shoppingApp.models.* , java.util.*" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script type="text/javascript" src="main.js"></script>
-<title>Sales Analytics - JSON</title>
-</head>
-<body>
 <%
 if (session.getAttribute("roleName") != null) {
     String role = session.getAttribute("roleName").toString();
@@ -142,9 +133,11 @@ if (session.getAttribute("roleName") != null) {
             jObject.put("prod_headers", jArray);
 
             JSONArray jArray2 = new JSONArray();
+            JSONArray jArray3 = new JSONArray();
 
             for (String cons: consumers) {
                 JSONObject cJson2 = new JSONObject();
+                JSONObject cJson3 = new JSONObject();
                 ////////////////////////// Table for Customers ////////////////////
 
                 if (filter.equals("all")) {
@@ -183,8 +176,9 @@ if (session.getAttribute("roleName") != null) {
                     rs2 = pstmt.executeQuery();
 
                     while (rs2.next()) {
-                        cJson2.put(rs2.getString("product_name"), rs2.getInt("total"));
+                        cJson3.put(cons + "_" + rs2.getString("product_name"), rs2.getInt("total"));
                     }
+                    jArray3.put(cJson3);
                     jArray2.put(cJson2);
                 } else {
 
@@ -231,11 +225,14 @@ if (session.getAttribute("roleName") != null) {
                     pstmt.setString(6, filter);
                     rs2 = pstmt.executeQuery();
                     while (rs2.next()) {
-                        cJson2.put(rs2.getString("product_name"), rs2.getInt("total"));
+                        cJson3.put(cons + "_" + rs2.getString("product_name"), rs2.getInt("total"));
                     }
                     jArray2.put(cJson2);
+                    jArray3.put(cJson3);
                 }
                 jObject.put("states", jArray2);
+                jObject.put("inner", jArray3);
+                
             }
 
             response.getWriter().print(jObject);
@@ -289,5 +286,3 @@ if (session.getAttribute("roleName") != null) {
   else { %> 
   	<h3> Please <a href="./login.jsp"> login </a> before viewing the page</h3>
 <% } %>
-</body>
-</html>
