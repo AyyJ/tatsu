@@ -15,6 +15,7 @@ CREATE TABLE filteredStateSales(
 CREATE TABLE filteredStateTopK(
   state_name TEXT,
   product_name TEXT,
+  category_name TEXT,
   total BIGINT
 );
 
@@ -183,3 +184,25 @@ INSERT INTO stateTopK(
     ON prodsAndStates.state_name = salesMade.state_name
     AND prodsAndStates.product_name = salesMade.product_name
 );
+
+INSERT INTO filteredStateTopK(
+  SELECT prodsAndStates.state_name AS state_name, prodsAndStates.product_name AS product_name, category_name, COALESCE(total,0) AS total
+  FROM
+    (SELECT state_name AS state_name, product_name AS product_name
+    FROM product, state) AS prodsAndStates
+    LEFT OUTER JOIN
+      (SELECT st.state_name AS state_name, p2.product_name AS product_name, cat.category_name, SUM(pc.quantity * pc.price) AS total
+      FROM shopping_cart sc2, products_in_cart pc, product p2, person p, state st, category cat
+      WHERE pc.cart_id = sc2.id
+      AND pc.product_id = p2.id
+      AND sc2.person_id = p.id
+      AND p.state_id = st.id
+      AND p2.category_id = cat.id
+      GROUP BY (st.state_name,p2.product_name, cat.category_name)
+      ORDER BY p2.product_name
+    ) AS salesMade
+    ON prodsAndStates.state_name = salesMade.state_name
+    AND prodsAndStates.product_name = salesMade.product_name
+    ORDER BY total DESC
+);
+

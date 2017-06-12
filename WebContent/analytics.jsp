@@ -80,8 +80,10 @@
 			<%
 			ArrayList<String> consumers = new ArrayList<String>();
 			ArrayList<String> products = new ArrayList<String>();
+			ArrayList<Integer> totals = new ArrayList<Integer>();
 			int sum = 0;
 			int sum2 = 0;
+			int tot = 0;
 			%>
 
 		<%-- -------- Open Connection Code -------- --%>
@@ -105,35 +107,40 @@
     			"user=postgres&password=postgres1");
 
     			if(filter.equals("all")){
-    			
+							pstmt2 = conn.prepareStatement("SELECT * FROM stateSales ORDER BY totalsale DESC LIMIT 50 ");
+							rs2 = pstmt2.executeQuery();
+							while(rs2.next()){
+								consumers.add(rs2.getString("state_name"));
+							}
     						// top k state ordering, filter by all
-    						pstmt = conn.prepareStatement("SELECT * FROM topSales ORDER BY totalsale DESC LIMIT 50 ");
+    						pstmt = conn.prepareStatement("SELECT product_name,Sum(total) as totalsale FROM stateTopK WHERE state_name=? GROUP BY product_name ORDER BY totalsale DESC LIMIT 50 ");
+    						pstmt.setString(1,consumers.get(0));
     						rs = pstmt.executeQuery();
     						while(rs.next()) {
     							products.add(rs.getString("product_name"));
 							}
-    						pstmt2 = conn.prepareStatement("SELECT * FROM stateSales ORDER BY totalsale DESC LIMIT 50 ");
-    						rs2 = pstmt2.executeQuery();
-    						while(rs2.next()){
-    							consumers.add(rs2.getString("state_name"));
-    					}
     		}
     				
     				else{
     					
     						// top k state ordering, filter by category
-    						pstmt = conn.prepareStatement("SELECT * FROM filteredProdSales "
-									+ "WHERE category_name=? ORDER BY totalsale DESC LIMIT 50");
-    						pstmt.setString(1,filter);
+	    					pstmt2 = conn.prepareStatement("SELECT * FROM filteredStateSales WHERE category_name=? union SELECT * FROM filteredStateSales WHERE category_name is null ORDER BY totalsale DESC LIMIT 50 ");
+							pstmt2.setString(1,filter);
+							rs2 = pstmt2.executeQuery();
+							while(rs2.next()){
+								consumers.add(rs2.getString("state_name"));
+							}
+    						pstmt = conn.prepareStatement("SELECT product_name, p.sale AS totalsale FROM filteredStateTopK, "
+    								+ "(SELECT SUM(total) AS sale FROM filteredStateTopK WHERE state_name = ?) as p "
+									+ "WHERE category_name=? GROUP BY product_name, p.sale "
+									+ "ORDER BY totalsale DESC LIMIT 50");
+    						pstmt.setString(2,filter);
+    						pstmt.setString(1,consumers.get(0));
+    						//pstmt.setString(3,filter);
+    						//pstmt.setString(4,consumers.get(0));
     						rs = pstmt.executeQuery();
     						while(rs.next()){
     							products.add(rs.getString("product_name"));
-    						}
-    						pstmt2 = conn.prepareStatement("SELECT * FROM filteredStateSales WHERE category_name=? union SELECT * FROM filteredStateSales WHERE category_name is null ORDER BY totalsale DESC LIMIT 50 ");
-    						pstmt2.setString(1,filter);
-    						rs2 = pstmt2.executeQuery();
-    						while(rs2.next()){
-    							consumers.add(rs2.getString("state_name"));
     						}
     					}
     			
@@ -150,16 +157,19 @@
     			<input type="hidden" value="false" name="firstPage" /></button></td>
     			<%
     				for(String prod:products){
-    					pstmt = conn.prepareStatement("SELECT SUM(products_in_cart.price * products_in_cart.quantity) AS total " +
-														"FROM products_in_cart " +
-														"INNER JOIN product ON products_in_cart.product_id = product.id " +
-														"WHERE product.product_name = ?");
-    					pstmt.setString(1, prod);
-    					rs = pstmt.executeQuery();
-    					while(rs.next()){
-    						// doesn't work. need to look at query. TODO
-    						sum2 = (int)rs.getDouble("total");
+    					if(filter.equals("all")){
+	    					pstmt = conn.prepareStatement("SELECT totalsale FROM topSales WHERE product_name = ? ORDER BY totalsale");
+	    					pstmt.setString(1, prod);
     					}
+    					else{
+    						pstmt = conn.prepareStatement("SELECT totalsale FROM filteredProdSales WHERE product_name = ? ORDER BY totalsale");
+	    					pstmt.setString(1, prod);
+	    					//pstmt.setString(2,filter);
+    					}
+    					rs = pstmt.executeQuery();
+    					while(rs.next())
+    						sum2 = (int)rs.getDouble("totalsale");
+    					
     					%>
     					<td><%=prod %> ($<%=sum2 %>)</td>
     					<%
@@ -171,96 +181,50 @@
     				for(String cons:consumers){
     		////////////////////////// Table for Customers ////////////////////
     					
-    						if(filter.equals("all")){
 	    						
-	    							// rows. top k ordering, filter by all
-	    							pstmt = conn.prepareStatement("select prod.product_name, 2*sum(prod.sum)/count(prod) as total, sum(prod2.sum2) as total2 "
-	    									+ "from (select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum "
-	    									+ "from state, product,person,shopping_cart,products_in_cart where state.state_name = ? and "
-	    									+ "person.state_id = state.id and person.id = shopping_cart.person_id and "
-	    									+ "shopping_cart.id = products_in_cart.cart_id and "
-	    									+ "product.id = products_in_cart.product_id group by product_name "
-	    									+ "union "
-	    									+ "select product_name,'0' from product) as prod, "
-	    									+ "(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum2 "
-	    	    							+ "from state, product,person,shopping_cart,products_in_cart where state.state_name = ? and "
-	    	    							+ "person.state_id = state.id and person.id = shopping_cart.person_id and "
-	    	    							+ "shopping_cart.id = products_in_cart.cart_id and "
-	    	    							+ "product.id = products_in_cart.product_id group by product_name "
-	    	    							+ "union "
-	    	    							+ "select product_name,'0' from product) as prod2 "
-	    									+ "where prod.product_name = prod2.product_name "
-	    									+ "group by prod.product_name order by total2 desc");
-	    							pstmt.setString(1,cons);
-	    							pstmt.setString(2,consumers.get(0));
-	    							rs = pstmt.executeQuery();
-	    							sum = 0;
-	    							while(rs.next())
-	    								sum = sum + rs.getInt("total");
-	    							%>
-	    							<tr>
-	    							<td><%= cons %> ($<%= sum %>)</td>
-	    							<%
-	    							pstmt.setString(1,cons);
-	    							pstmt.setString(2,consumers.get(0));
-	    							rs2 = pstmt.executeQuery();
 	    							
-	    							while(rs2.next()){ %>
-	    								<td>$<%= rs2.getInt("total") %></td>
-	    							<% } %>
-	    							</tr> <%
-	    						}
-    						
-    						else{
-    						
-    								pstmt = conn.prepareStatement("select prod.product_name, 2*sum(prod.sum)/count(prod) as total, sum(prod2.sum2) as total2 "
-    										+ "from(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum "
-    										+"from state, product,person,shopping_cart,products_in_cart,category "
-    										+"where state.state_name = ? and person.state_id = state.id and "
-    										+"person.id = shopping_cart.person_id and shopping_cart.id = products_in_cart.cart_id and "
-    										+"product.id = products_in_cart.product_id and product.category_id = category.id and "
-    										+"category.category_name = ? group by product_name "
-    										+"union "
-    										+"select product_name,'0'  from product,category "
-    										+"where category.id = product.category_id and category.category_name = ? )prod, "
-    										+"(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum2 "
-    	    								+"from state, product,person,shopping_cart,products_in_cart,category "
-    	    								+"where state.state_name = ? and person.state_id = state.id and "
-    	    								+"person.id = shopping_cart.person_id and shopping_cart.id = products_in_cart.cart_id and "
-    	    								+"product.id = products_in_cart.product_id and product.category_id = category.id and "
-    	    								+"category.category_name = ? group by product_name "
-    	    								+"union "
-    	    								+"select product_name,'0'  from product,category "
-    	    								+"where category.id = product.category_id and category.category_name = ? )prod2 "
-    										+ "where prod.product_name = prod2.product_name "
-    										+"group by prod.product_name order by total2 desc");
-    								pstmt.setString(1,cons);
-    								pstmt.setString(2,filter);
-    								pstmt.setString(3,filter);
-    								pstmt.setString(4,consumers.get(0));
-    								pstmt.setString(5,filter);
-    								pstmt.setString(6,filter);
-	    							rs = pstmt.executeQuery();
 	    							sum = 0;
-	    							while(rs.next())
-	    								sum = sum + rs.getInt("total");
+	    							for(int index = 0; index < products.size(); index++){
+		    							pstmt = conn.prepareStatement("SELECT total FROM stateTopK WHERE state_name = ? AND product_name = ?");
+		    							/*pstmt = conn.prepareStatement("select prod.product_name, 2*sum(prod.sum)/count(prod) as total, sum(prod2.sum2) as total2 "
+		    									+ "from (select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum "
+		    									+ "from state, product,person,shopping_cart,products_in_cart where state.state_name = ? and "
+		    									+ "person.state_id = state.id and person.id = shopping_cart.person_id and "
+		    									+ "shopping_cart.id = products_in_cart.cart_id and "
+		    									+ "product.id = products_in_cart.product_id group by product_name "
+		    									+ "union "
+		    									+ "select product_name,'0' from product) as prod, "
+		    									+ "(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum2 "
+		    	    							+ "from state, product,person,shopping_cart,products_in_cart where state.state_name = ? and "
+		    	    							+ "person.state_id = state.id and person.id = shopping_cart.person_id and "
+		    	    							+ "shopping_cart.id = products_in_cart.cart_id and "
+		    	    							+ "product.id = products_in_cart.product_id group by product_name "
+		    	    							+ "union "
+		    	    							+ "select product_name,'0' from product) as prod2 "
+		    									+ "where prod.product_name = prod2.product_name "
+		    									+ "group by prod.product_name order by total2 desc");*/
+		    							pstmt.setString(1,cons);
+		    							pstmt.setString(2,products.get(index));
+
+		    							rs = pstmt.executeQuery();
+		    							while(rs.next()){
+		    								tot = rs.getInt("total");
+		    								sum = sum + tot;
+		    								totals.add(index, tot);
+		    							}
+	    							}
 	    							%>
 	    							<tr>
 	    							<td><%= cons %> ($<%= sum %>)</td>
 	    							<%
-	    							pstmt.setString(1,cons);
-    								pstmt.setString(2,filter);
-    								pstmt.setString(3,filter);
-    								pstmt.setString(4,consumers.get(0));
-    								pstmt.setString(5,filter);
-    								pstmt.setString(6,filter);
-	    							rs2 = pstmt.executeQuery();
-	    							while(rs2.next()){ %>
-	    								<td>$<%= rs2.getInt("total") %></td>
+	    							
+	    							for(int i = 0; i < totals.size(); i++){ %>
+	    								<td>$<%= totals.get(i) %></td>
 	    							<% } %>
 	    							</tr> <%
-    							}
-    						}
+	    							totals.clear();
+    						
+    					    						}
     			%>
     			<tr>
     			<td><button onClick="refreshTable();" value="refresh">Refresh
