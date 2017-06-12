@@ -176,9 +176,11 @@ if (session.getAttribute("roleName") != null) {
                     rs2 = pstmt.executeQuery();
 
                     while (rs2.next()) {
-                        cJson3.put(cons + "_" + rs2.getString("product_name"), rs2.getInt("total"));
+                    	cJson3.put("state", cons);
+                    	cJson3.put("product", rs2.getString("product_name"));
+                        cJson3.put("total", rs2.getInt("total"));
+                        jArray3.put(cJson3);
                     }
-                    jArray3.put(cJson3);
                     jArray2.put(cJson2);
                 } else {
 
@@ -225,10 +227,12 @@ if (session.getAttribute("roleName") != null) {
                     pstmt.setString(6, filter);
                     rs2 = pstmt.executeQuery();
                     while (rs2.next()) {
-                        cJson3.put(cons + "_" + rs2.getString("product_name"), rs2.getInt("total"));
+                    	cJson3.put("state", cons);
+                    	cJson3.put("product", rs2.getString("product_name"));
+                        cJson3.put("total", rs2.getInt("total"));
+                        jArray3.put(cJson3);
                     }
                     jArray2.put(cJson2);
-                    jArray3.put(cJson3);
                 }
                 jObject.put("states", jArray2);
                 jObject.put("inner", jArray3);

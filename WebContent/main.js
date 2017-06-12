@@ -49,18 +49,31 @@ function showDelta(obj) {
 }
 function listAllRows(obj) {
     var i;
-    var row="";
+    var row="<td>";
     var cols="";
     var arr = obj.prod_headers;
     var arr2 = obj.states;
+    var arr3 = obj.inner;
+    
     for(i = 0; i < arr.length; i++) {
-    	row = row + "<td>"+ arr[i].prod_name +" ($" + arr[i].prod_total + ") </td>";
+    	row = row + "<td id='"+ arr[i].prod_name + "'>"+ arr[i].prod_name +" ($" + arr[i].prod_total + ") </td>";
     }
-    row = row + "</tr>";
+    row = row + "</tr><tr>";
     for(i = 0; i < arr2.length; i++){
-    	cols = cols + "<td>"+ arr2[i].state_name +" ($" + arr2[i].state_overall_total + ") </td></tr>" + 
-    		"";
+    	console.log("Starting for loop for " + arr2[i].state_name);
+    	cols = cols + "<td>"+ arr2[i].state_name +" ($" + arr2[i].state_overall_total + ") </td>"; 
+    	for(j=0; j<arr3.length; j++){
+        	console.log("Starting second for loop for " + arr2[i].state_name);
+    		if(arr3[j].state == arr2[i].state_name){
+    	    	console.log("inside if statement for " + arr2[i].state_name);
+    			cols = cols + "<td id='" + arr3[j].product + "_" + arr3[j].state + "'> $" + arr3[j].total + "</td>";
+    		}
+    		
+    	}
+    	cols = cols + "</tr>";
+    	
     }
+
     document.getElementById("tablebody").innerHTML = row + cols;
     
 }
