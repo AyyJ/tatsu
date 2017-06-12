@@ -138,7 +138,7 @@ INSERT INTO stateSales(
     GROUP BY st.state_name
     ) AS purchasesperstate
     ON allstates.state_name = purchasesperstate.state_name
-  ORDER BY total_sale desc
+  ORDER BY totalsale desc
 );
 
 INSERT INTO filteredStateSales(
@@ -205,4 +205,3 @@ INSERT INTO filteredStateTopK(
     AND prodsAndStates.product_name = salesMade.product_name
     ORDER BY total DESC
 );
-
