@@ -1,4 +1,4 @@
-function refreshTable() {
+function refreshTable1() {
 
     $.ajax({
         type: 'GET',

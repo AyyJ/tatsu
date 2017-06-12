@@ -32,6 +32,7 @@
 						<h3>Hello <%= session.getAttribute("personName") %></h3>
 						<h3>Sales Analytics</h3>
 
+						<div id="sorry"> </div>
 						<% if (request.getAttribute("error")!=null && Boolean.parseBoolean(request.getAttribute("error").toString())) {%>
 							<h4 style="color:red"> Error : <%= request.getAttribute("errorMsg").toString()%></h4>
 						<%}%>
@@ -77,6 +78,8 @@
 					</td>
 				</tr>
 			</table>
+			<button onClick="refreshTable();" value="refresh" style="float: left;">Refresh</button>
+          <button onClick="refreshTable();" value="refresh" style="float: right;">Refresh</button>
 			<%
 			ArrayList<String> consumers = new ArrayList<String>();
 			ArrayList<String> products = new ArrayList<String>();
@@ -148,13 +151,12 @@
     			
     			//done with columns and rows
     			%>
-    		
-    			
+    	
     			<table border =1 align="center">
 
     			<tr>
-    			<td><button onClick="refreshTable();" value="refresh">Refresh
-    			<input type="hidden" value="false" name="firstPage" /></button></td>
+    			<td>
+    	
     			<%
     				for(String prod:products){
     					if(filter.equals("all")){
@@ -175,8 +177,7 @@
     					<%
     				}
     			%>
-    			<td><button onClick="refreshTable();" value="refresh">Refresh
-    			<input type="hidden" value="false" name="firstPage" /> </button></td></tr>
+				</tr>
     			<%
     				for(String cons:consumers){
     		////////////////////////// Table for Customers ////////////////////
@@ -186,23 +187,6 @@
 	    							sum = 0;
 	    							for(int index = 0; index < products.size(); index++){
 		    							pstmt = conn.prepareStatement("SELECT total FROM stateTopK WHERE state_name = ? AND product_name = ?");
-		    							/*pstmt = conn.prepareStatement("select prod.product_name, 2*sum(prod.sum)/count(prod) as total, sum(prod2.sum2) as total2 "
-		    									+ "from (select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum "
-		    									+ "from state, product,person,shopping_cart,products_in_cart where state.state_name = ? and "
-		    									+ "person.state_id = state.id and person.id = shopping_cart.person_id and "
-		    									+ "shopping_cart.id = products_in_cart.cart_id and "
-		    									+ "product.id = products_in_cart.product_id group by product_name "
-		    									+ "union "
-		    									+ "select product_name,'0' from product) as prod, "
-		    									+ "(select product.product_name ,sum(products_in_cart.price * products_in_cart.quantity) as sum2 "
-		    	    							+ "from state, product,person,shopping_cart,products_in_cart where state.state_name = ? and "
-		    	    							+ "person.state_id = state.id and person.id = shopping_cart.person_id and "
-		    	    							+ "shopping_cart.id = products_in_cart.cart_id and "
-		    	    							+ "product.id = products_in_cart.product_id group by product_name "
-		    	    							+ "union "
-		    	    							+ "select product_name,'0' from product) as prod2 "
-		    									+ "where prod.product_name = prod2.product_name "
-		    									+ "group by prod.product_name order by total2 desc");*/
 		    							pstmt.setString(1,cons);
 		    							pstmt.setString(2,products.get(index));
 
@@ -226,17 +210,10 @@
     						
     					    						}
     			%>
-    			<tr>
-    			<td><button onClick="refreshTable();" value="refresh">Refresh
-    			<input type="hidden" value="false" name="firstPage" /></button></td>
-    			<% for(String prod:products){ %>
     			
-    			  <td></td>
-    			  <% } %>
-    			  <td><button onClick="refreshTable();" value="refresh">Refresh
-    			  <input type="hidden" value="false" name="firstPage" /></button></td>
     			</table>
-    			
+		  <button onClick="refreshTable();" value="refresh" style="float: left;">Refresh</button>
+          <button onClick="refreshTable();" value="refresh" style="float: right;">Refresh</button>
     			<%
             }
 			catch(SQLException e){

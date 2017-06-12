@@ -65,3 +65,7 @@ function listAllRows(obj) {
     document.getElementById("tablebody").innerHTML = row;
     
 }
+function refreshTable(){
+	document.getElementById("sorry").innerHTML = "<p>Refresh Event Triggered</p>";
+	document.getElementById("sorry").style.color = "red";
+}
